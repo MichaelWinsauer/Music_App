@@ -29,13 +29,13 @@ public class Main extends AppCompatActivity {
         for(Song s : songList) {
             Button b = new Button(this);
             b.setText("Button " + s.getId());
-            b.setBackgroundColor(Color.rgb(40, 53, 64));
-            b.setTextColor(Color.rgb(230, 230, 230));
+            b.setBackgroundColor(this.getColor(R.color.colorSecondaryDark));
+            b.setTextColor(this.getColor(R.color.colorSecondary));
 
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            layoutParams.setMargins(0, 5, 0, 5);
+            layoutParams.setMargins(0, 3, 0, 0);
 
             llSongList.addView(b, layoutParams);
         }
