@@ -1,5 +1,7 @@
 package com.example.lyritic;
 
+import java.io.File;
+
 public class Song {
 
     private static int count;
@@ -10,6 +12,9 @@ public class Song {
     private String genre;
     private String path;
     private String format;
+    private String location;
+
+    private File file;
 
     private double length;
     private double size;
@@ -109,5 +114,21 @@ public class Song {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }
