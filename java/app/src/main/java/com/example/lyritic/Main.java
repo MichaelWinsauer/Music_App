@@ -3,6 +3,7 @@ package com.example.lyritic;
 import android.graphics.Color;
 import android.graphics.Path;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.Layout;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,22 +20,13 @@ public class Main extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.browse);
 
-        LinearLayout llSongList = (LinearLayout) findViewById(R.id.llSongList);
+        LinearLayout llSongList = findViewById(R.id.llSongList);
 
-        List<Song> songList = new ArrayList<>();
-        List<String> folder = new ArrayList<>();
-        folder.add("sdcard0/Music");
-//        folder.add("/storage/Downloads");
+        List<Song> songList;
 
-//        songList = ContentLoader.load(folder);
+        songList = ContentLoader.load(getBaseContext());
 
-//        for(int i = 0; i < 30; i++) {
-//            songList.add(new Song());
-//        }
-
-
-        songList = ContentLoader.load(getContentResolver());
-
+        //Nur temporär
         for(Song s : songList) {
             Button b = new Button(this);
             b.setText(s.getTitle());
@@ -48,10 +40,5 @@ public class Main extends AppCompatActivity {
 
             llSongList.addView(b, layoutParams);
         }
-
-
-
-
-
     }
 }

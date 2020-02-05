@@ -1,6 +1,7 @@
 package com.example.lyritic;
 
 import java.io.File;
+import java.util.Date;
 
 public class Song {
 
@@ -10,17 +11,15 @@ public class Song {
     private String interpret;
     private String album;
     private String genre;
-    private String path;
-    private String format;
-    private String location;
+    private String absolutePath;
+    private Date dateAdded;
 
-    private File file;
-
-    private double length;
+    private double duration;
     private double size;
 
-    private int number;
     private int id;
+
+    private boolean isMusic;
 
     public Song()
     {
@@ -68,28 +67,20 @@ public class Song {
         this.genre = genre;
     }
 
-    public String getPath() {
-        return path;
+    public String getAbsolutePath() {
+        return absolutePath;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setAbsolutePath(String absolutePath) {
+        this.absolutePath = absolutePath;
     }
 
-    public String getFormat() {
-        return format;
+    public double getDuration() {
+        return duration;
     }
 
-    public void setFormat(String format) {
-        this.format = format;
-    }
-
-    public double getLength() {
-        return length;
-    }
-
-    public void setLength(double length) {
-        this.length = length;
+    public void setDuration(double duration) {
+        this.duration = duration;
     }
 
     public double getSize() {
@@ -100,14 +91,6 @@ public class Song {
         this.size = size;
     }
 
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
-    }
-
     public int getId() {
         return id;
     }
@@ -116,19 +99,19 @@ public class Song {
         this.id = id;
     }
 
-    public File getFile() {
-        return file;
+    public boolean getIsMusic() {
+        return isMusic;
     }
 
-    public void setFile(File file) {
-        this.file = file;
+    public void setIsMusic(boolean isMusic) {
+        this.isMusic = isMusic;
     }
 
-    public String getLocation() {
-        return location;
+    public Date getDateAdded() {
+        return dateAdded;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setDateAdded(Date dateAdded) {
+        this.dateAdded = dateAdded;
     }
 }

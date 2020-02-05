@@ -1,21 +1,13 @@
 package com.example.lyritic;
 
-import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.provider.MediaStore;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 class ContentLoader {
 
@@ -23,64 +15,38 @@ class ContentLoader {
     private File file;
     private static List<Song> songs = new ArrayList<>();
 
-//    public static List<Song> load(List<String> paths) {
-//
-//
-//        for(String path : paths) {
-//
-//            File folder = new File(path);
-//
-//            File[] files = folder.listFiles();
-//
-//            for(File f : files) {
-//                f = new File(path);
-//
-//                if(f.isDirectory())
-//                    continue;
-//
-//                if(!f.getName().contains(".mp3")) {
-//                    continue;
-//                }
-//
-//                Song s = new Song();
-//
-//                MediaMetadataRetriever mdr = new MediaMetadataRetriever();
-//                mdr.setDataSource(path);
-//
-//                s.setTitle(mdr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
-//                s.setInterpret(mdr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST));
-//                s.setAlbum(mdr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM));
-//                s.setGenre(mdr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE));
-//                s.setLength(Double.parseDouble(mdr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)));
-//                songs.add(s);
-//            }
-//        }
-//
-//        return songs;
-//    }
+    public static List<Song> load(Context context) {
 
-    public static List<Song> load(ContentResolver cr) {
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor c = cr.query(uri, null, null, null, null);
+        String[] projection = {
+                MediaStore.Audio.AudioColumns.TITLE,
+                MediaStore.Audio.ArtistColumns.ARTIST,
+                MediaStore.Audio.AudioColumns.ALBUM,
+                MediaStore.Audio.AudioColumns.DURATION,
+                MediaStore.Audio.AudioColumns.DATA,
+                MediaStore.Audio.AudioColumns.SIZE,
+                MediaStore.Audio.AudioColumns.IS_MUSIC,
+                MediaStore.Audio.AudioColumns.DATE_ADDED
+        };
+        Cursor c = context.getContentResolver().query(uri, projection, null, null, null);
 
-
-        if(c == null || !c.moveToNext()) {
+        if(c == null)
             return null;
-        }
 
-        c.moveToFirst();
-
-        do {
+        while(c.moveToNext()) {
             Song s = new Song();
-            s.setInterpret(c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST)));
-            s.setTitle(c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE)));
-            s.setAlbum(c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM)));
-            s.setLength(Double.parseDouble(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DURATION))));
-            s.setSize(Double.parseDouble(c.getString(c.getColumnIndex(MediaStore.Audio.Media.SIZE))));
-            s.setLocation(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
+
+            s.setTitle(c.getString(0));
+            s.setInterpret(c.getString(1));
+            s.setAlbum(c.getString(2));
+            s.setDuration(Double.parseDouble(c.getString(3))/1000);
+            s.setAbsolutePath(c.getString(4));
+            s.setSize(Double.parseDouble(c.getString(5)));
+            s.setIsMusic(Boolean.parseBoolean(c.getString(6)));
+            s.setDateAdded(new java.util.Date((long)Double.parseDouble(c.getString(7))*1000));
 
             songs.add(s);
-        }   while (c.moveToNext());
+        }
 
         return songs;
     }
