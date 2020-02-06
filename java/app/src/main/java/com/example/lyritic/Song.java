@@ -1,6 +1,10 @@
 package com.example.lyritic;
 
+import android.media.MediaPlayer;
+import android.provider.MediaStore;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 public class Song {
@@ -20,11 +24,49 @@ public class Song {
     private int id;
 
     private boolean isMusic;
+    private boolean isPlaying;
 
     public Song()
     {
         count++;
         id = count;
+    }
+
+    public boolean play(){
+        MediaPlayer player = new MediaPlayer();
+
+        try {
+            player.setDataSource(this.absolutePath);
+            player.prepare();
+        } catch (IOException e) {
+            isPlaying = false;
+        } catch (Exception e) {
+            isPlaying = false;
+        }
+
+        isPlaying = true;
+        player.start();
+
+        return isPlaying;
+    }
+
+    public boolean pause() {
+        MediaPlayer player = new MediaPlayer();
+
+        try {
+            player.setDataSource(this.absolutePath);
+        } catch (IOException e) {
+            isPlaying = true;
+        } catch (Exception e) {
+            isPlaying = true;
+        }
+
+        if(isPlaying) {
+            isPlaying = false;
+            player.pause();
+        }
+
+        return isPlaying;
     }
 
     public static int getCount() {
@@ -114,4 +156,13 @@ public class Song {
     public void setDateAdded(Date dateAdded) {
         this.dateAdded = dateAdded;
     }
+
+    public boolean getIsPlaying() {
+        return isPlaying;
+    }
+
+    public void setIsPlaying(boolean isPlaying) {
+        this.isPlaying = isPlaying;
+    }
+
 }
