@@ -1,6 +1,9 @@
 package com.example.lyritic;
 
+import android.content.Context;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 
 import java.io.File;
@@ -32,14 +35,15 @@ public class Song {
         id = count;
     }
 
-    public boolean play(){
+    public boolean play(Context context){
         MediaPlayer player = new MediaPlayer();
 
         try {
-            player.setDataSource(this.absolutePath);
+            player.setDataSource(context, Uri.parse(getAbsolutePath()));
             player.prepare();
         } catch (IOException e) {
             isPlaying = false;
+            e.printStackTrace();
         } catch (Exception e) {
             isPlaying = false;
         }
@@ -164,5 +168,4 @@ public class Song {
     public void setIsPlaying(boolean isPlaying) {
         this.isPlaying = isPlaying;
     }
-
 }
