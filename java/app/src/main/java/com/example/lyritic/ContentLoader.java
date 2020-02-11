@@ -42,7 +42,6 @@ class ContentLoader {
             s.setDuration(Double.parseDouble(c.getString(3))/1000);
             s.setAbsolutePath(c.getString(4));
             s.setSize(Double.parseDouble(c.getString(5)));
-            s.setIsMusic(Boolean.parseBoolean(c.getString(6)));
             s.setDateAdded(new java.util.Date((long)Double.parseDouble(c.getString(7))*1000));
 
             songs.add(s);

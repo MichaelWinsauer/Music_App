@@ -5,9 +5,9 @@
 <!--    <color name="colorAccent">#FEB800</color>-->
 <!--    <color name="colorSecondary">#A6A6A6</color>-->
 <!--    <color name="colorPrimary">#E6E6E6</color>-->
-    <color name="colorPrimaryDark">#29292F</color>
-    <color name="colorSecondaryDark">#393940</color>
-    <color name="colorAccent">#FEB800</color>
-    <color name="colorSecondary">#A6A6A6</color>
+    <color name="colorPrimaryDark">#222222</color>
+    <color name="colorSecondaryDark">#363636</color>
+    <color name="colorAccent">#B99569</color>
+    <color name="colorSecondary">#CECECE</color>
     <color name="colorPrimary">#E6E6E6</color>
 </resources>

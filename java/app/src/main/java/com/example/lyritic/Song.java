@@ -1,13 +1,7 @@
 package com.example.lyritic;
 
-import android.content.Context;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
-
-import java.io.File;
-import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class Song {
@@ -19,6 +13,8 @@ public class Song {
     private String album;
     private String genre;
     private String absolutePath;
+    private String formatDuration;
+
     private Date dateAdded;
 
     private double duration;
@@ -26,51 +22,20 @@ public class Song {
 
     private int id;
 
-    private boolean isMusic;
-    private boolean isPlaying;
-
     public Song()
     {
         count++;
         id = count;
     }
 
-    public boolean play(Context context){
-        MediaPlayer player = new MediaPlayer();
+    public String durationToString(long seconds) {
 
-        try {
-            player.setDataSource(context, Uri.parse(getAbsolutePath()));
-            player.prepare();
-        } catch (IOException e) {
-            isPlaying = false;
-            e.printStackTrace();
-        } catch (Exception e) {
-            isPlaying = false;
-        }
+        long min = (seconds % 3600) / 60;
+        long sec = seconds % 60;
 
-        isPlaying = true;
-        player.start();
+        formatDuration = String.format("%02d:%02d",  min, sec);
 
-        return isPlaying;
-    }
-
-    public boolean pause() {
-        MediaPlayer player = new MediaPlayer();
-
-        try {
-            player.setDataSource(this.absolutePath);
-        } catch (IOException e) {
-            isPlaying = true;
-        } catch (Exception e) {
-            isPlaying = true;
-        }
-
-        if(isPlaying) {
-            isPlaying = false;
-            player.pause();
-        }
-
-        return isPlaying;
+        return formatDuration;
     }
 
     public static int getCount() {
@@ -145,14 +110,6 @@ public class Song {
         this.id = id;
     }
 
-    public boolean getIsMusic() {
-        return isMusic;
-    }
-
-    public void setIsMusic(boolean isMusic) {
-        this.isMusic = isMusic;
-    }
-
     public Date getDateAdded() {
         return dateAdded;
     }
@@ -161,11 +118,11 @@ public class Song {
         this.dateAdded = dateAdded;
     }
 
-    public boolean getIsPlaying() {
-        return isPlaying;
+    public String getFormatDuration() {
+        return formatDuration;
     }
 
-    public void setIsPlaying(boolean isPlaying) {
-        this.isPlaying = isPlaying;
+    public void setFormatDuration(String formatDuration) {
+        this.formatDuration = formatDuration;
     }
 }
