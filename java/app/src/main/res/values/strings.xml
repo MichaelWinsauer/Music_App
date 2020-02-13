@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">lyritic</string>
+    <string name="sortName">Name</string>
+    <string name="sortArtist">Interpret</string>
+    <string name="sortDate">Datum</string>
+    <string name="sortAlbum">Album</string>
+    <string name="sortLength">Länge</string>
 </resources>

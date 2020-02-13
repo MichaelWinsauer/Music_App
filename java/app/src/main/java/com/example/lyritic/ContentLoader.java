@@ -3,7 +3,10 @@ package com.example.lyritic;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
+
+import androidx.annotation.RequiresApi;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,6 +18,8 @@ class ContentLoader {
     private File file;
     private static List<Song> songs = new ArrayList<>();
 
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     public static List<Song> load(Context context) {
 
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;

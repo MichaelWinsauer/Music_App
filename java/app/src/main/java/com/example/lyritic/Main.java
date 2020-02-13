@@ -5,17 +5,22 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -33,25 +38,58 @@ public class Main extends AppCompatActivity {
     TextView currentSong;
     TextView currentArtist;
     Button btnPlay;
-    SeekBar sbSongPosition;
+    SeekBar sbSongProgress;
     Button btnOptions;
-
+    Handler sbHandler;
+    Runnable sbUpdater;
+    Menu menu;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.browse);
 
-        musicManager = new MusicManager();
-        llSongList = findViewById(R.id.llSongList);
-        context = getBaseContext();
-        currentSong = findViewById(R.id.txtCurrentSong);
-        currentArtist = findViewById(R.id.txtCurrentArtist);
-        btnPlay = findViewById(R.id.btnPlay);
-        sbSongPosition = findViewById(R.id.sbSongPosition);
-        btnOptions = findViewById(R.id.btnOptions);
+        initializeReferences();
+        prepareMusicManager();
+        initializeEventListener();
+    }
 
-        sbSongPosition.setPadding(0, 0, 0, 0);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_sorting, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch(item.getItemId()) {
+            case R.id.sortName:
+//                    songList = musicManager.sortSongList();
+                break;
+
+            case R.id.sortArtist:
+
+                break;
+
+            case R.id.sortDate:
+
+                break;
+
+            case R.id.sortAlbum:
+
+                break;
+
+            case R.id.sortLength:
+
+                break;
+        }
+
+        return true;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private void prepareMusicManager() {
         if (ContextCompat.checkSelfPermission(Main.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             songList = ContentLoader.load(getBaseContext());
             createSongs(llSongList);
@@ -59,6 +97,21 @@ public class Main extends AppCompatActivity {
         } else {
             requestPermission();
         }
+    }
+
+    private void initializeReferences() {
+        musicManager = new MusicManager();
+        llSongList = findViewById(R.id.llSongList);
+        context = getBaseContext();
+        currentSong = findViewById(R.id.txtCurrentSong);
+        currentArtist = findViewById(R.id.txtCurrentArtist);
+        btnPlay = findViewById(R.id.btnPlay);
+        sbSongProgress = findViewById(R.id.sbSongPosition);
+        btnOptions = findViewById(R.id.btnOptions);
+        sbHandler = new Handler();
+    }
+
+    private void initializeEventListener() {
 
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,9 +127,39 @@ public class Main extends AppCompatActivity {
                 Toast.makeText(Main.this, "Du suckst", Toast.LENGTH_SHORT).show();
             }
         });
+
+        sbUpdater = new Runnable() {
+            @Override
+            public void run() {
+                sbSongProgress.setProgress(musicManager.getPercentageProgress());
+                sbHandler.postDelayed(this, 50);
+            }
+        };
+
+        sbSongProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                musicManager.toggleSong();
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                musicManager.skipTo(seekBar.getProgress());
+                musicManager.toggleSong();
+            }
+        });
+
+        musicManager.setSeekBarData(sbHandler, sbUpdater);
     }
 
+
     private void createSongs(final LinearLayout llSongList) {
+
+        sbSongProgress.setPadding(0, 0, 0, 0);
 
         if(musicManager.getCurrentSong() == null) {
             musicManager.setCurrentSong(songList.get(0));
@@ -93,7 +176,6 @@ public class Main extends AppCompatActivity {
             final TextView txtSongArtist = new TextView(this);
             final TextView txtSongDuration = new TextView(this);
             final View viewSeperator = new View(this);
-//            final ImageView ivPlay = new ImageView(this);
             final Button btnPlaySong = new Button(this);
 
 
@@ -105,7 +187,6 @@ public class Main extends AppCompatActivity {
             txtSongArtist.setId(View.generateViewId());
             txtSongDuration.setId(View.generateViewId());
             viewSeperator.setId(View.generateViewId());
-//            ivPlay.setId(View.generateViewId());
             clSong.setId(View.generateViewId());
             btnPlaySong.setId(View.generateViewId());
 
@@ -114,9 +195,7 @@ public class Main extends AppCompatActivity {
             clSong.addView(txtSongTitle, 0);
             clSong.addView(txtSongArtist, 1);
             clSong.addView(txtSongDuration, 2);
-            clSong.addView(btnPlaySong, 3);
-//            clSong.addView(ivPlay, 3);
-            clSong.addView(viewSeperator, 4);
+            clSong.addView(viewSeperator, 3);
             clSong.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -125,16 +204,6 @@ public class Main extends AppCompatActivity {
                     currentArtist.setText(musicManager.getCurrentSong().getInterpret());
                     togglePlayButton(btnPlaySong);
                     togglePlayButton((btnPlay));
-                    //doesn't work yet... :D
-//                    view.setBackgroundColor(Main.this.getColor(R.color.colorPrimary));
-
-//                    for(Song song : songList) {
-//                        if((Integer) view.getTag() != song.getId()) {
-//                            for(View v : llSongList.getTouchables()){
-//                                v.setBackgroundColor(Main.this.getColor(R.color.colorPrimaryDark));
-//                            }
-//                        }
-//                    }
                 }
             });
 
@@ -175,25 +244,16 @@ public class Main extends AppCompatActivity {
             cs.connect(viewSeperator.getId(), ConstraintSet.BOTTOM, clSong.getId(), ConstraintSet.BOTTOM, 0);
             cs.connect(viewSeperator.getId(), ConstraintSet.RIGHT, clSong.getId(), ConstraintSet.RIGHT, 0);
             cs.connect(viewSeperator.getId(), ConstraintSet.LEFT, txtSongTitle.getId(), ConstraintSet.LEFT, Tools.dpToPx(70, this));
-//            cs.connect(viewSeperator.getId(), ConstraintSet.RIGHT, clSong.getId(), ConstraintSet.RIGHT, Tools.dpToPx(35, this));
-//            cs.connect(viewSeperator.getId(), ConstraintSet.LEFT, txtSongTitle.getId(), ConstraintSet.LEFT, Tools.dpToPx(35, this));
             cs.applyTo(clSong);
 
-//            ivPlay.setImageDrawable(this.getDrawable(R.drawable.playbutton_dark));
-//            ivPlay.setLayoutParams(new ConstraintLayout.LayoutParams(Tools.dpToPx(35, this), Tools.dpToPx(35, this)));
-
-//            cs.connect(ivPlay.getId(), ConstraintSet.LEFT, clSong.getId(), ConstraintSet.LEFT, Tools.dpToPx(20, this));
-//            cs.connect(ivPlay.getId(), ConstraintSet.TOP, clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(20, this));
+//            btnPlaySong.setBackgroundResource(R.drawable.ic_play_arrow_black_24dp);
+//            btnPlaySong.setWidth(Tools.dpToPx(25, this));
+//            btnPlaySong.setHeight(Tools.dpToPx(35, this));
+//
+//            cs.centerVertically(btnPlaySong.getId(), clSong.getId());
+//            cs.connect(btnPlaySong.getId(), ConstraintSet.TOP, clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(0, this));
+//            cs.connect(btnPlaySong.getId(), ConstraintSet.BOTTOM, clSong.getId(), ConstraintSet.BOTTOM, Tools.dpToPx(0, this));
 //            cs.applyTo(clSong);
-
-            btnPlaySong.setBackgroundResource(R.drawable.ic_play_arrow_black_24dp);
-            btnPlaySong.setWidth(Tools.dpToPx(25, this));
-            btnPlaySong.setHeight(Tools.dpToPx(35, this));
-
-            cs.centerVertically(btnPlaySong.getId(), clSong.getId());
-            cs.connect(btnPlaySong.getId(), ConstraintSet.TOP, clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(0, this));
-            cs.connect(btnPlaySong.getId(), ConstraintSet.BOTTOM, clSong.getId(), ConstraintSet.BOTTOM, Tools.dpToPx(0, this));
-            cs.applyTo(clSong);
 
             llSongList.addView(clSong);
         }

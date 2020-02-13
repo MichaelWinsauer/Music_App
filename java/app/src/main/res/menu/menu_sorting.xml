@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/sortName"
+        android:title="@string/sortName" />
+    <item
+        android:id="@+id/sortArtist"
+        android:title="@string/sortArtist" />
+    <item
+        android:id="@+id/sortDate"
+        android:title="@string/sortDate" />
+    <item
+        android:id="@+id/sortAlbum"
+        android:title="@string/sortAlbum" />
+    <item
+        android:id="@+id/sortLength"
+        android:title="@string/sortLength" />
+</menu>

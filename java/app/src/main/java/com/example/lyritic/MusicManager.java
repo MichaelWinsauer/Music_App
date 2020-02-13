@@ -1,15 +1,12 @@
 package com.example.lyritic;
 
-import android.content.Context;
 import android.media.MediaPlayer;
-import android.net.Uri;
+import android.os.Handler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.function.Function;
 
 public class MusicManager {
     private Song currentSong;
@@ -17,6 +14,9 @@ public class MusicManager {
     private Song nextSong;
     private MediaPlayer player;
     private List<Song> songList;
+    private Handler handler;
+    private Runnable update;
+
 
     public MusicManager() {
         songList = new ArrayList<>();
@@ -43,17 +43,6 @@ public class MusicManager {
         player.start();
     }
 
-    public Song getSongById(int id) {
-        if(songList != null && songList.size() > 0) {
-            for (Song s : songList) {
-                if (s.getId() == id) {
-                    return s;
-                }
-            }
-        }
-        return null;
-    }
-
     public void changeSong(Song newSong) {
         if(currentSong == null) {
             setCurrentSong(newSong);
@@ -73,6 +62,8 @@ public class MusicManager {
             setCurrentSong(newSong);
             play();
         }
+
+        toggleSeekBarProgress(handler, update);
     }
 
     public void toggleSong() {
@@ -81,42 +72,58 @@ public class MusicManager {
         } else {
             player.pause();
         }
+
+        toggleSeekBarProgress(handler, update);
+    }
+
+    private void toggleSeekBarProgress(Handler handler, Runnable update) {
+        if(player.isPlaying()) {
+            handler.postDelayed(update, 0);
+        } else {
+            handler.removeCallbacks(update);
+        }
+    }
+
+    public void skipTo(int progress) {
+        player.seekTo((int)Math.round(currentSong.getDuration() / 100 * progress * 1000));
+    }
+
+    public void toggleLoop() {
+
+        if(player.isLooping()) {
+            player.setLooping(false);
+        } else {
+            player.setLooping(true);
+        }
+    }
+
+    public void toggleRandom() {
+        //TODO: später wenn Playlists
+    }
+
+    public int getPercentageProgress() {
+        return (int)Math.round( (player.getCurrentPosition() / 1000) / currentSong.getDuration() * 100) ;
+    }
+
+    public Song getSongById(int id) {
+        if(songList != null && songList.size() > 0) {
+            for (Song s : songList) {
+                if (s.getId() == id) {
+                    return s;
+                }
+            }
+        }
+        return null;
     }
 
     public List<Song> sortSongList(Integer sort, boolean asc) {
 
-        switch (sort) {
-            //Alphabetic
-            case 1:
-
-                if(asc) {
-
-                }
-
-                break;
-
-            //Artist
-            case 2:
-
-                break;
-
-            //Date_Added
-            case 3:
-
-                break;
-
-            //Album
-            case 4:
-
-                break;
-
-            //length
-            case 5:
-
-                break;
-        }
-
         return songList;
+    }
+
+    public void setSeekBarData(Handler handler, Runnable update) {
+        this.handler = handler;
+        this.update = update;
     }
 
     public Song getCurrentSong() {
