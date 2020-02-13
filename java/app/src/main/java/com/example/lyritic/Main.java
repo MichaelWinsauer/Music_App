@@ -27,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Main extends AppCompatActivity {
@@ -39,11 +40,12 @@ public class Main extends AppCompatActivity {
     TextView currentArtist;
     Button btnPlay;
     SeekBar sbSongProgress;
-    Button btnOptions;
     Handler sbHandler;
     Runnable sbUpdater;
     Menu menu;
+    MenuItem menuItem;
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.browse);
@@ -57,33 +59,27 @@ public class Main extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_sorting, menu);
+        this.menu = menu;
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch(item.getItemId()) {
-            case R.id.sortName:
-//                    songList = musicManager.sortSongList();
-                break;
-
-            case R.id.sortArtist:
-
-                break;
-
-            case R.id.sortDate:
-
-                break;
-
-            case R.id.sortAlbum:
-
-                break;
-
-            case R.id.sortLength:
-
-                break;
+        
+        if(menuItem == null) {
+            menuItem = menu.findItem(R.id.sortDate);
         }
+
+        if(menuItem.getItemId() != item.getItemId() ) {
+            songList = musicManager.sortSongList(item.getItemId(), true);
+        } else {
+            Collections.reverse(songList);
+        }
+
+        llSongList.removeAllViews();
+        createSongs(llSongList);
+
+        menuItem = item;
 
         return true;
     }
@@ -91,9 +87,9 @@ public class Main extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.Q)
     private void prepareMusicManager() {
         if (ContextCompat.checkSelfPermission(Main.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            songList = ContentLoader.load(getBaseContext());
+            musicManager.setSongList(ContentLoader.load(getBaseContext()));
+            songList = musicManager.getSongList();
             createSongs(llSongList);
-            musicManager.setSongList(songList);
         } else {
             requestPermission();
         }
@@ -107,7 +103,6 @@ public class Main extends AppCompatActivity {
         currentArtist = findViewById(R.id.txtCurrentArtist);
         btnPlay = findViewById(R.id.btnPlay);
         sbSongProgress = findViewById(R.id.sbSongPosition);
-        btnOptions = findViewById(R.id.btnOptions);
         sbHandler = new Handler();
     }
 
@@ -118,13 +113,6 @@ public class Main extends AppCompatActivity {
             public void onClick(View view) {
                 togglePlayButton(view);
                 musicManager.toggleSong();
-            }
-        });
-
-        btnOptions.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(Main.this, "Du suckst", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -279,6 +267,7 @@ public class Main extends AppCompatActivity {
         ActivityCompat.requestPermissions(Main.this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, external_storage_permission_code);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == external_storage_permission_code) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

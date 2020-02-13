@@ -6,6 +6,8 @@ import android.os.Handler;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MusicManager {
@@ -16,6 +18,7 @@ public class MusicManager {
     private List<Song> songList;
     private Handler handler;
     private Runnable update;
+    private Comparator<Song> comparator;
 
 
     public MusicManager() {
@@ -116,7 +119,59 @@ public class MusicManager {
         return null;
     }
 
-    public List<Song> sortSongList(Integer sort, boolean asc) {
+    public List<Song> sortSongList(Integer id, boolean ascending) {
+        switch (id) {
+            case R.id.sortName:
+                comparator = new Comparator<Song>() {
+                    @Override
+                    public int compare(Song o1, Song o2) {
+                        return o1.getTitle().compareTo(o2.getTitle());
+                    }
+                };
+                break;
+
+            case R.id.sortArtist:
+                comparator = new Comparator<Song>() {
+                    @Override
+                    public int compare(Song o1, Song o2) {
+                        return o1.getInterpret().compareTo(o2.getInterpret());
+                    }
+                };
+                break;
+
+            case R.id.sortDate:
+                comparator = new Comparator<Song>() {
+                    @Override
+                    public int compare(Song o1, Song o2) {
+                        return o1.getDateAdded().compareTo(o2.getDateAdded());
+                    }
+                };
+                break;
+
+            case R.id.sortAlbum:
+                comparator = new Comparator<Song>() {
+                    @Override
+                    public int compare(Song o1, Song o2) {
+                        return o1.getAlbum().compareTo(o2.getAlbum());
+                    }
+                };
+                break;
+
+            case R.id.sortLength:
+                comparator = new Comparator<Song>() {
+                    @Override
+                    public int compare(Song o1, Song o2) {
+                        return ((Integer) Math.round((long) o1.getDuration())).compareTo(Math.round((long) o2.getDuration()));
+                    }
+                };
+                break;
+        }
+
+        Collections.sort(songList, comparator);
+
+        if(!ascending) {
+            Collections.reverse(songList);
+        }
 
         return songList;
     }
@@ -160,9 +215,15 @@ public class MusicManager {
 
     public void setSongList(List<Song> songList) {
         this.songList = songList;
+        defaultSorting();
+    }
+
+    private void defaultSorting() {
+        sortSongList(R.id.sortDate, false);
     }
 
     public List<Song> getSongList() {
         return this.songList;
     }
+
 }
