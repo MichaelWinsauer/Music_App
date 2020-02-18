@@ -5,12 +5,13 @@ import android.os.Handler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class MusicManager {
+public class MusicManager implements Serializable {
     private Song currentSong;
     private Song prevSong;
     private Song nextSong;
@@ -19,7 +20,7 @@ public class MusicManager {
     private Handler handler;
     private Runnable update;
     private Comparator<Song> comparator;
-
+    private Boolean isPrepared = false;
 
     public MusicManager() {
         songList = new ArrayList<>();
@@ -35,6 +36,7 @@ public class MusicManager {
         try {
             player.setDataSource(currentSong.getAbsolutePath());
             player.prepare();
+            isPrepared = true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -58,7 +60,11 @@ public class MusicManager {
             if(player.isPlaying()) {
                 player.pause();
             } else {
-                player.start();
+                if(isPrepared) {
+                    player.start();
+                } else {
+                    play();
+                }
             }
         } else {
             player.reset();
@@ -70,6 +76,12 @@ public class MusicManager {
     }
 
     public void toggleSong() {
+
+        if(!isPrepared) {
+            changeSong(currentSong);
+            return;
+        }
+
         if(!player.isPlaying()) {
             player.start();
         } else {
@@ -104,6 +116,48 @@ public class MusicManager {
         //TODO: später wenn Playlists
     }
 
+    public void skipSong() {
+
+        currentSong = nextSong;
+        setSongsByCurrentSong();
+
+        if(player.isPlaying()) {
+            player.reset();
+            play();
+        }
+    }
+
+    public void backSong() {
+
+        currentSong = prevSong;
+        setSongsByCurrentSong();
+
+
+        if(player.isPlaying()) {
+            player.reset();
+            play();
+        }
+    }
+
+    public void setSongsByCurrentSong() {
+        if(currentSong == null) {
+            return;
+        }
+
+        if(getSongListIndex(currentSong) > 0) {
+            prevSong = songList.get(getSongListIndex(currentSong) - 1);
+        } else {
+            prevSong = songList.get(songList.size() - 1);
+        }
+
+        if(getSongListIndex(currentSong) + 1 < songList.size()) {
+            nextSong = songList.get(getSongListIndex(currentSong) + 1);
+        } else {
+            nextSong = songList.get(0);
+        }
+    }
+
+
     public int getPercentageProgress() {
         return (int)Math.round( (player.getCurrentPosition() / 1000) / currentSong.getDuration() * 100) ;
     }
@@ -119,7 +173,19 @@ public class MusicManager {
         return null;
     }
 
-    public List<Song> sortSongList(Integer id, boolean ascending) {
+    public Integer getSongListIndex(Song song) {
+        if(songList != null && songList.size() > 0) {
+            for(int i = 0; i < songList.size(); i++) {
+                if(song.getId() == songList.get(i).getId()) {
+                    return i;
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    public List<Song> sortSongList(Integer id) {
         switch (id) {
             case R.id.sortName:
                 comparator = new Comparator<Song>() {
@@ -169,10 +235,6 @@ public class MusicManager {
 
         Collections.sort(songList, comparator);
 
-        if(!ascending) {
-            Collections.reverse(songList);
-        }
-
         return songList;
     }
 
@@ -219,11 +281,39 @@ public class MusicManager {
     }
 
     private void defaultSorting() {
-        sortSongList(R.id.sortDate, false);
+        sortSongList(R.id.sortDate);
+        Collections.reverse(songList);
+        if(currentSong == null) {
+            currentSong = songList.get(0);
+            setSongsByCurrentSong();
+        }
     }
 
     public List<Song> getSongList() {
         return this.songList;
     }
 
+    public Handler getHandler() {
+        return handler;
+    }
+
+    public void setHandler(Handler handler) {
+        this.handler = handler;
+    }
+
+    public Runnable getUpdate() {
+        return update;
+    }
+
+    public void setUpdate(Runnable update) {
+        this.update = update;
+    }
+
+    public Comparator<Song> getComparator() {
+        return comparator;
+    }
+
+    public void setComparator(Comparator<Song> comparator) {
+        this.comparator = comparator;
+    }
 }

@@ -1,8 +1,9 @@
 package com.example.lyritic;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Song {
+public class Song implements Serializable {
 
     private static int count;
 

@@ -1,18 +1,24 @@
 package com.example.lyritic;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
+import android.transition.TransitionSet;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -20,15 +26,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import org.json.JSONObject;
+
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Main extends AppCompatActivity {
     int external_storage_permission_code;
@@ -44,8 +53,14 @@ public class Main extends AppCompatActivity {
     Runnable sbUpdater;
     Menu menu;
     MenuItem menuItem;
+    ConstraintSet cs;
+    ConstraintSet csPlay;
+    ConstraintLayout clPlayer;
+    TransitionSet transition;
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
+    float oldX;
+    float oldY;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.browse);
@@ -71,7 +86,7 @@ public class Main extends AppCompatActivity {
         }
 
         if(menuItem.getItemId() != item.getItemId() ) {
-            songList = musicManager.sortSongList(item.getItemId(), true);
+            songList = musicManager.sortSongList(item.getItemId());
         } else {
             Collections.reverse(songList);
         }
@@ -84,7 +99,6 @@ public class Main extends AppCompatActivity {
         return true;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
     private void prepareMusicManager() {
         if (ContextCompat.checkSelfPermission(Main.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             musicManager.setSongList(ContentLoader.load(getBaseContext()));
@@ -104,8 +118,12 @@ public class Main extends AppCompatActivity {
         btnPlay = findViewById(R.id.btnPlay);
         sbSongProgress = findViewById(R.id.sbSongPosition);
         sbHandler = new Handler();
+        clPlayer = findViewById(R.id.clPlayer);
+        cs = new ConstraintSet();
+        csPlay = new ConstraintSet();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initializeEventListener() {
 
         btnPlay.setOnClickListener(new View.OnClickListener() {
@@ -141,6 +159,68 @@ public class Main extends AppCompatActivity {
             }
         });
 
+        btnPlay.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                    transition = new TransitionSet().addTransition(new ChangeBounds()).setDuration(100).setStartDelay(150);
+                    TransitionManager.beginDelayedTransition(clPlayer, transition);
+                    ViewGroup.LayoutParams params = btnPlay.getLayoutParams();
+
+                    params.height = Tools.dpToPx(100, Main.this);
+                    params.width = Tools.dpToPx(100, Main.this);
+
+                    btnPlay.setLayoutParams(params);
+                } else if(event.getAction() == MotionEvent.ACTION_MOVE) {
+                    //Brauch ich hier wirklich was?
+                    //eigentlich nur, wenn ich den Button tatsächlich als "Joystick" bewegen will
+
+                } else if(event.getAction() == MotionEvent.ACTION_UP) {
+                    transition = new TransitionSet().addTransition(new ChangeBounds()).setDuration(100);
+                    TransitionManager.beginDelayedTransition(clPlayer, transition);
+                    ViewGroup.LayoutParams params = btnPlay.getLayoutParams();
+
+                    params.height = Tools.dpToPx(50, Main.this);
+                    params.width = Tools.dpToPx(50, Main.this);
+
+                    btnPlay.setLayoutParams(params);
+
+                    //Check for the swiping direction
+
+                    //LEFT - RIGHT
+                    if(oldX > event.getX()) {
+
+                    } else {
+
+                    }
+
+                    //UP - DOWN
+                    if (oldY > event.getY()) {
+                        musicManager.toggleLoop();
+                        //nur temporär
+                        if(musicManager.getPlayer().isLooping())
+                            Toast.makeText(Main.this, "LOOOOOPING!", Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(Main.this, "NOOOOO", Toast.LENGTH_SHORT).show();
+                    } else {
+
+                    }
+
+                }
+                return false;
+            }
+        });
+
+        clPlayer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Main.this, Player.class);
+                DataManager.setMusicManager(musicManager);
+                startActivity(intent);
+            }
+        });
+
         musicManager.setSeekBarData(sbHandler, sbUpdater);
     }
 
@@ -151,6 +231,7 @@ public class Main extends AppCompatActivity {
 
         if(musicManager.getCurrentSong() == null) {
             musicManager.setCurrentSong(songList.get(0));
+            musicManager.setSongsByCurrentSong();
         }
 
         if(currentSong.getText().equals("")) {
@@ -165,10 +246,6 @@ public class Main extends AppCompatActivity {
             final TextView txtSongDuration = new TextView(this);
             final View viewSeperator = new View(this);
             final Button btnPlaySong = new Button(this);
-
-
-
-            ConstraintSet cs = new ConstraintSet();
 
             clSong.setTag(s.getId());
             txtSongTitle.setId(View.generateViewId());
@@ -187,11 +264,24 @@ public class Main extends AppCompatActivity {
             clSong.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    togglePlayButton(btnPlaySong);
+                    togglePlayButton((btnPlay));
+                    TransitionManager.beginDelayedTransition(clSong);
                     musicManager.changeSong(musicManager.getSongById((Integer) view.getTag()));
                     currentSong.setText(musicManager.getCurrentSong().getTitle());
                     currentArtist.setText(musicManager.getCurrentSong().getInterpret());
-                    togglePlayButton(btnPlaySong);
-                    togglePlayButton((btnPlay));
+
+                    for(int i = 0; i < llSongList.getChildCount(); i++) {
+                        if(llSongList.getChildAt(i).getId() == view.getId()) {
+                            if(musicManager.getPlayer().isPlaying()) {
+                                view.setBackgroundColor(Main.this.getColor(R.color.colorAccent));
+                            } else {
+                                view.setBackgroundColor(Main.this.getColor(R.color.colorSecondaryDark));
+                            }
+                        } else {
+                            llSongList.getChildAt(i).setBackgroundColor(Main.this.getColor(R.color.colorSecondaryDark));
+                        }
+                    }
                 }
             });
 
@@ -267,7 +357,6 @@ public class Main extends AppCompatActivity {
         ActivityCompat.requestPermissions(Main.this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, external_storage_permission_code);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == external_storage_permission_code) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

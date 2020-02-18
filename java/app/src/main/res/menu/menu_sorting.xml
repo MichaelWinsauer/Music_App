@@ -2,17 +2,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/sortName"
-        android:title="@string/sortName" />
+        android:title="@string/sortName"
+        android:icon="@drawable/name"
+        />
     <item
         android:id="@+id/sortArtist"
-        android:title="@string/sortArtist" />
+        android:title="@string/sortArtist"
+        android:icon="@drawable/person"
+        />
     <item
         android:id="@+id/sortDate"
-        android:title="@string/sortDate" />
+        android:title="@string/sortDate"
+        android:icon="@drawable/date"
+        />
     <item
         android:id="@+id/sortAlbum"
-        android:title="@string/sortAlbum" />
+        android:title="@string/sortAlbum"
+        android:icon="@drawable/album"
+        />
     <item
         android:id="@+id/sortLength"
-        android:title="@string/sortLength" />
+        android:title="@string/sortLength"
+        android:icon="@drawable/length"
+        />
+
 </menu>

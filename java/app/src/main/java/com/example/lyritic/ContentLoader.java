@@ -18,8 +18,6 @@ class ContentLoader {
     private File file;
     private static List<Song> songs = new ArrayList<>();
 
-
-    @RequiresApi(api = Build.VERSION_CODES.Q)
     public static List<Song> load(Context context) {
 
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
