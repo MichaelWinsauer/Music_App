@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:dart_tags/dart_tags.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers/audio_cache.dart';
@@ -14,29 +17,27 @@ class _MediaBarState extends State<MediaBar> {
   double sliderValue = 0;
   AudioPlayer audioPlayer = AudioPlayer();
   static AudioCache assetPlayer = AudioCache(prefix: 'music/');
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
+  static Directory musicDir = Directory('/storage/emulated/0/Music');
+  List<FileSystemEntity> musicList = musicDir.listSync();
 
   void playAudioFile() async {
-    int result = await audioPlayer.play('/storage/emulated/0/Music/AUD-20200207-WA0018.mp3', isLocal: true);
-    if (result == 1) {
-      // success
-    }
-    //debugPrint(await _localFile);
+    // int result = await audioPlayer.play('/storage/emulated/0/Music/AUD-20200207-WA0018.mp3', isLocal: true);
+    // if (result == 1) {
+    //   // success
+    // }
+
+    TagProcessor tagProcessor = TagProcessor();
+    File musicFile = File(musicList[15].path);
+    var l = await tagProcessor.getTagsFromByteData(
+        ByteData.view(musicFile.readAsBytesSync().buffer), [TagType.id3v2]);
+
+    print(l[0].tags['artist']);
+    print(l[0].tags['title']);
   }
 
   String get _localPath {
     return '/storage/emulated/0/Music/';
   }
-
-  // Future<String> get _localFile async {
-  //   final path = await _localPath;
-  //   return '$path/Music/AUD-20200207-WA0018.mp3';
-  // }
 
   @override
   Widget build(BuildContext context) {

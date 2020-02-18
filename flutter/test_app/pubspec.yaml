@@ -25,6 +25,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   audioplayers: ^0.14.0
   path_provider: ^1.6.0
+  dart_tags: ^0.2.2
 
 dev_dependencies:
   flutter_test:
