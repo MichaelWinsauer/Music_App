@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers/audio_cache.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MediaBar extends StatefulWidget {
@@ -10,21 +13,30 @@ class MediaBar extends StatefulWidget {
 class _MediaBarState extends State<MediaBar> {
   double sliderValue = 0;
   AudioPlayer audioPlayer = AudioPlayer();
+  static AudioCache assetPlayer = AudioCache(prefix: 'music/');
 
-  void playAudioFile() async {
-     int result = await audioPlayer.play('/storage/emulated/0/Downloads/AUD-20200207-WA0018.mp3', isLocal: true);
-     if (result == 1) {
-       // success
-     }
-    // final path = await _localPath;
-    // debugPrint(path);
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
   }
 
-  Future<String> get _localPath async {
-  final directory = await getExternalStorageDirectory();
+  void playAudioFile() async {
+    int result = await audioPlayer.play('/storage/emulated/0/Music/AUD-20200207-WA0018.mp3', isLocal: true);
+    if (result == 1) {
+      // success
+    }
+    //debugPrint(await _localFile);
+  }
 
-  return directory.path;
-}
+  String get _localPath {
+    return '/storage/emulated/0/Music/';
+  }
+
+  // Future<String> get _localFile async {
+  //   final path = await _localPath;
+  //   return '$path/Music/AUD-20200207-WA0018.mp3';
+  // }
 
   @override
   Widget build(BuildContext context) {
