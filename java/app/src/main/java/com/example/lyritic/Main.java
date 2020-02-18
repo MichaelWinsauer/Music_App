@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
@@ -70,11 +71,17 @@ public class Main extends AppCompatActivity {
         initializeEventListener();
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_sorting, menu);
+        getMenuInflater().inflate(R.menu.menu_sorting, menu);
         this.menu = menu;
+
+        if(menu instanceof MenuBuilder){
+            MenuBuilder m = (MenuBuilder) menu;
+            m.setOptionalIconsVisible(true);
+        }
+
         return true;
     }
 
@@ -138,6 +145,9 @@ public class Main extends AppCompatActivity {
             @Override
             public void run() {
                 sbSongProgress.setProgress(musicManager.getPercentageProgress());
+                if(!musicManager.getPlayer().isPlaying()) {
+                    callNextSong();
+                }
                 sbHandler.postDelayed(this, 50);
             }
         };
@@ -198,13 +208,8 @@ public class Main extends AppCompatActivity {
                     //UP - DOWN
                     if (oldY > event.getY()) {
                         musicManager.toggleLoop();
-                        //nur temporär
-                        if(musicManager.getPlayer().isLooping())
-                            Toast.makeText(Main.this, "LOOOOOPING!", Toast.LENGTH_SHORT).show();
-                        else
-                            Toast.makeText(Main.this, "NOOOOO", Toast.LENGTH_SHORT).show();
                     } else {
-
+                        musicManager.toggleShuffle();
                     }
 
                 }
@@ -222,6 +227,11 @@ public class Main extends AppCompatActivity {
         });
 
         musicManager.setSeekBarData(sbHandler, sbUpdater);
+    }
+
+    private void callNextSong() {
+        musicManager.changeSong(musicManager.getNextSong());
+        musicManager.setSongsByCurrentSong();
     }
 
 

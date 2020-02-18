@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 public class MusicManager implements Serializable {
     private Song currentSong;
@@ -21,6 +22,8 @@ public class MusicManager implements Serializable {
     private Runnable update;
     private Comparator<Song> comparator;
     private Boolean isPrepared = false;
+    private List<Song> backup;
+    private Boolean isShuffled = false;
 
     public MusicManager() {
         songList = new ArrayList<>();
@@ -69,6 +72,7 @@ public class MusicManager implements Serializable {
         } else {
             player.reset();
             setCurrentSong(newSong);
+            setSongsByCurrentSong();
             play();
         }
 
@@ -112,8 +116,23 @@ public class MusicManager implements Serializable {
         }
     }
 
-    public void toggleRandom() {
-        //TODO: später wenn Playlists
+    public void toggleShuffle() {
+        if(!isShuffled) {
+            backup = songList;
+            List<Song> tmp = new ArrayList<>();
+            isShuffled = true;
+
+            for(Song s : songList) {
+                tmp.add(songList.get(new Random().nextInt(songList.size() - 1)));
+            }
+
+            songList = tmp;
+        } else {
+            isShuffled = false;
+            songList = backup;
+        }
+
+        setSongsByCurrentSong();
     }
 
     public void skipSong() {

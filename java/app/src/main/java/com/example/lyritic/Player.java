@@ -91,6 +91,13 @@ public class Player extends AppCompatActivity {
                 refreshData();
             }
         });
+
+        btnShuffle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                musicManager.toggleShuffle();
+            }
+        });
     }
 
     private void displayData() {

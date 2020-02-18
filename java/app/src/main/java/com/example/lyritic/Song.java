@@ -14,6 +14,8 @@ public class Song implements Serializable {
     private String absolutePath;
     private String formatDuration;
 
+    private String coverPath;
+
     private Date dateAdded;
 
     private double duration;
@@ -35,6 +37,14 @@ public class Song implements Serializable {
         formatDuration = String.format("%02d:%02d",  min, sec);
 
         return formatDuration;
+    }
+
+    public String getCoverPath() {
+        return coverPath;
+    }
+
+    public void setCoverPath(String coverPath) {
+        this.coverPath = coverPath;
     }
 
     public static int getCount() {

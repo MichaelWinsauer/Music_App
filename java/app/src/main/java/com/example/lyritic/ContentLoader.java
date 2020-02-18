@@ -29,7 +29,8 @@ class ContentLoader {
                 MediaStore.Audio.AudioColumns.DATA,
                 MediaStore.Audio.AudioColumns.SIZE,
                 MediaStore.Audio.AudioColumns.IS_MUSIC,
-                MediaStore.Audio.AudioColumns.DATE_ADDED
+                MediaStore.Audio.AudioColumns.DATE_ADDED,
+                MediaStore.Audio.Albums.ALBUM_ART
         };
         Cursor c = context.getContentResolver().query(uri, projection, null, null, null);
 
@@ -46,7 +47,7 @@ class ContentLoader {
             s.setAbsolutePath(c.getString(4));
             s.setSize(Double.parseDouble(c.getString(5)));
             s.setDateAdded(new java.util.Date((long)Double.parseDouble(c.getString(7))*1000));
-
+            s.setCoverPath(c.getString(8));
             songs.add(s);
         }
 
