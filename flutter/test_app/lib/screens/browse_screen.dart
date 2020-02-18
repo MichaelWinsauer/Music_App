@@ -54,9 +54,16 @@ class _BrowseScreenState extends State<BrowseScreen> {
           //   ],
           // ),
           ListView.builder(
-              itemCount: musicList.length,
+              itemCount: musicList.length + 1,
               itemBuilder: (ctx, index) {
-                return SongItem(musicList[index].path, '$index');
+                if (index < musicList.length) {
+                  return SongItem(musicList[index].path, '$index');
+                } else {
+                  return SizedBox(
+                    height: 130,
+                    width: double.infinity,
+                  );
+                }
               }),
           Column(
             children: <Widget>[
