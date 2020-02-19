@@ -57,7 +57,11 @@ class _BrowseScreenState extends State<BrowseScreen> {
               itemCount: musicList.length + 1,
               itemBuilder: (ctx, index) {
                 if (index < musicList.length) {
-                  return SongItem(musicList[index].path, '$index');
+                  return SongItem(
+                    musicList[index].path,
+                    '$index',
+                    musicList[index].path,
+                  );
                 } else {
                   return SizedBox(
                     height: 130,

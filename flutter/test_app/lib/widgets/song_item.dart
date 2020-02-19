@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import './mediabar.dart';
+import '../providers/song_provider.dart';
 
 class SongItem extends StatelessWidget {
   final String title;
   final String artist;
+  final String path;
 
   SongItem(
     this.title,
     this.artist,
+    this.path,
   );
 
   @override
@@ -16,6 +22,9 @@ class SongItem extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           print('tapped');
+          Provider.of<Song>(context, listen: false).changePath(path);
+          MediaBar.stopSong();
+          MediaBar.playSong();
         },
         child: ListTile(
           trailing: Container(

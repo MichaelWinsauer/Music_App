@@ -7,32 +7,61 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/song_provider.dart';
 
 class MediaBar extends StatefulWidget {
+  static String songPath;
+  static AudioPlayer audioPlayer = AudioPlayer();
+  static bool isPlaying = false;
+
+  // void setSongPath(String path) {
+  //   songPath = path;
+  //   stopSong();
+  // }
+
+  static void stopSong() {
+    audioPlayer.stop();
+    isPlaying = false;
+  }
+
+  static void pauseSong() {
+    audioPlayer.pause();
+    isPlaying = false;
+  }
+
+  static void playSong() async{
+    int result = await MediaBar.audioPlayer.play(Song.path, isLocal: true);
+    if (result == 1) {
+      isPlaying = true;
+    }
+  }
+
   @override
   _MediaBarState createState() => _MediaBarState();
 }
 
 class _MediaBarState extends State<MediaBar> {
   double sliderValue = 0;
-  AudioPlayer audioPlayer = AudioPlayer();
-  static AudioCache assetPlayer = AudioCache(prefix: 'music/');
-  static Directory musicDir = Directory('/storage/emulated/0/Music');
-  List<FileSystemEntity> musicList = musicDir.listSync();
 
   void playAudioFile() async {
-    // int result = await audioPlayer.play('/storage/emulated/0/Music/AUD-20200207-WA0018.mp3', isLocal: true);
-    // if (result == 1) {
-    //   // success
-    // }
+    int result = await MediaBar.audioPlayer.play(Song.path, isLocal: true);
+    if (result == 1) {
+      // success
+    }
 
-    TagProcessor tagProcessor = TagProcessor();
-    File musicFile = File(musicList[15].path);
-    var l = await tagProcessor.getTagsFromByteData(
-        ByteData.view(musicFile.readAsBytesSync().buffer), [TagType.id3v2]);
+    setState(() {
+      MediaBar.isPlaying = true;
+    });
 
-    print(l[0].tags['artist']);
-    print(l[0].tags['title']);
+    // TagProcessor tagProcessor = TagProcessor();
+    // File musicFile = File(musicList[15].path);
+    // var l = await tagProcessor.getTagsFromByteData(
+    //     ByteData.view(musicFile.readAsBytesSync().buffer), [TagType.id3v2]);
+
+    // print(l[0].tags['artist']);
+    // print(l[0].tags['title']);
   }
 
   String get _localPath {
@@ -40,7 +69,15 @@ class _MediaBarState extends State<MediaBar> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    MediaBar.isPlaying = false;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final song = Provider.of<Song>(context);
     return Container(
       color: Colors.black87,
       width: double.infinity,
@@ -106,9 +143,19 @@ class _MediaBarState extends State<MediaBar> {
                 flex: 1,
                 fit: FlexFit.tight,
                 child: RawMaterialButton(
-                  onPressed: playAudioFile,
+                  onPressed: () {
+                    if (MediaBar.isPlaying) {
+                      setState(() {
+                        MediaBar.pauseSong();
+                      });
+                    } else {
+                      setState(() {
+                        MediaBar.playSong();
+                      });
+                    }
+                  },
                   child: new Icon(
-                    Icons.play_arrow,
+                    !MediaBar.isPlaying ? Icons.play_arrow : Icons.pause,
                     color: Colors.white,
                     size: 35.0,
                   ),
