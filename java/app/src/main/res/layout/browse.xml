@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/clMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -41,9 +42,9 @@
             android:id="@+id/btnPlay"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_marginStart="71dp"
+            android:layout_marginStart="47dp"
             android:layout_marginTop="25dp"
-            android:layout_marginEnd="25dp"
+            android:layout_marginEnd="50dp"
             android:layout_marginBottom="25dp"
             android:background="@drawable/ic_play_arrow_black_24dp"
             android:gravity="center|center_horizontal|center_vertical"
@@ -90,4 +91,35 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/llSelection"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/colorPrimaryDark"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/svSongList">
+
+        <ImageButton
+            android:id="@+id/imgBtnPlaySelection"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/colorPrimaryDark"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_lyritic_logo" />
+
+        <ImageButton
+            android:id="@+id/imgBtnAddSelection"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/colorPrimaryDark"
+            android:scaleType="fitCenter"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/vertical_menu" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

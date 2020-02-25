@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
+    android:gravity="fill"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/llRow1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal|center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/imgBtnHomeBrowse"
+            android:layout_width="205dp"
+            android:layout_height="175dp"
+            android:background="@color/colorPrimaryDark"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/home_browse" />
+
+        <ImageButton
+            android:id="@+id/imgBtnHomePlaylists"
+            android:layout_width="205dp"
+            android:layout_height="175dp"
+            android:background="@color/colorPrimaryDark"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/home_playlists" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llRow2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/imgBtnHomeSettings"
+            android:layout_width="205dp"
+            android:layout_height="175dp"
+            android:layout_weight="1"
+            android:background="@color/colorPrimaryDark"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/home_settings" />
+
+        <ImageButton
+            android:id="@+id/imgBtnHomeStats"
+            android:layout_width="205dp"
+            android:layout_height="175dp"
+            android:layout_weight="1"
+            android:background="@color/colorPrimaryDark"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/home_stats" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llRow3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/imgBtnHomeConverter"
+            android:layout_width="205dp"
+            android:layout_height="175dp"
+            android:layout_weight="1"
+            android:background="@color/colorPrimaryDark"
+            android:scaleX="3"
+            android:scaleY="3"
+            app:srcCompat="@drawable/date" />
+
+        <ImageButton
+            android:id="@+id/imgBtnHomeSpotify"
+            android:layout_width="205dp"
+            android:layout_height="175dp"
+            android:layout_weight="1"
+            android:background="@color/colorPrimaryDark"
+            android:scaleX="3"
+            android:scaleY="3"
+            app:srcCompat="@drawable/album" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="false"
+        android:cropToPadding="false"
+        android:scaleX="0.6"
+        android:scaleY="0.6"
+        app:srcCompat="@drawable/ic_lyritic_logo" />
+
+</LinearLayout>

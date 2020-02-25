@@ -102,20 +102,32 @@ public class Player extends AppCompatActivity {
 
     private void displayData() {
         refreshData();
-        displayImage();
     }
 
     private void displayImage() {
-        ivCover.setImageBitmap(Tools.createClippingMask(
-                BitmapFactory.decodeResource(getResources(), R.drawable.gthf61nec1h41),
-                BitmapFactory.decodeResource(getResources(), R.drawable.cover_mask)
-            )
-        );
+        if(musicManager.getCurrentSong().getCover() != null ) {
+            ivCover.setImageBitmap(Tools.createClippingMask(
+                    musicManager.getCurrentSong().getCover(),
+                    BitmapFactory.decodeResource(getResources(), R.drawable.cover_mask),
+                    true
+                    )
+            );
+
+        } else {
+            ivCover.setImageBitmap(Tools.createClippingMask(
+                    BitmapFactory.decodeResource(getResources(), R.drawable.gthf61nec1h41),
+                    BitmapFactory.decodeResource(getResources(), R.drawable.cover_mask),
+                    true
+                    )
+            );
+        }
     }
 
     private void refreshData() {
         txtTitle.setText(musicManager.getCurrentSong().getTitle());
         txtArtist.setText(musicManager.getCurrentSong().getInterpret());
         txtDuration.setText(musicManager.getCurrentSong().durationToString((long) musicManager.getCurrentSong().getDuration()));
+
+        displayImage();
     }
 }

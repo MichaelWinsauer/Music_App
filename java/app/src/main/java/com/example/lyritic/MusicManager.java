@@ -24,6 +24,7 @@ public class MusicManager implements Serializable {
     private Boolean isPrepared = false;
     private List<Song> backup;
     private Boolean isShuffled = false;
+    private List<Song> selectionBackup;
 
     public MusicManager() {
         songList = new ArrayList<>();
@@ -52,6 +53,17 @@ public class MusicManager implements Serializable {
     }
 
     public void changeSong(Song newSong) {
+
+        List<Song> tmp = songList;
+
+        if(isShuffled) {
+            songList = backup;
+        }
+
+        if(selectionBackup != null) {
+            songList = selectionBackup;
+        }
+
         if(currentSong == null) {
             setCurrentSong(newSong);
             play();
@@ -74,6 +86,10 @@ public class MusicManager implements Serializable {
             setCurrentSong(newSong);
             setSongsByCurrentSong();
             play();
+        }
+
+        if(isShuffled) {
+            songList = tmp;
         }
 
         toggleSeekBarProgress(handler, update);
@@ -122,8 +138,10 @@ public class MusicManager implements Serializable {
             List<Song> tmp = new ArrayList<>();
             isShuffled = true;
 
-            for(Song s : songList) {
-                tmp.add(songList.get(new Random().nextInt(songList.size() - 1)));
+            if(songList.size() > 1) {
+                for(Song s : songList) {
+                    tmp.add(songList.get(new Random().nextInt(songList.size() - 1)));
+                }
             }
 
             songList = tmp;
@@ -182,6 +200,13 @@ public class MusicManager implements Serializable {
     }
 
     public Song getSongById(int id) {
+
+        List<Song> tmp = songList;
+
+        if(isShuffled) {
+            songList = backup;
+        }
+
         if(songList != null && songList.size() > 0) {
             for (Song s : songList) {
                 if (s.getId() == id) {
@@ -189,6 +214,11 @@ public class MusicManager implements Serializable {
                 }
             }
         }
+
+        if(isShuffled) {
+            songList = tmp;
+        }
+
         return null;
     }
 
@@ -299,10 +329,20 @@ public class MusicManager implements Serializable {
         defaultSorting();
     }
 
+    public void setSongSelection(List<Song> selection) {
+        selectionBackup = songList;
+        songList = selection;
+
+        //changeSong(songList.get(0));
+        currentSong = selection.get(0);
+        setSongsByCurrentSong();
+        play();
+    }
+
     private void defaultSorting() {
         sortSongList(R.id.sortDate);
         Collections.reverse(songList);
-        if(currentSong == null) {
+        if(currentSong == null && songList != null) {
             currentSong = songList.get(0);
             setSongsByCurrentSong();
         }

@@ -19,6 +19,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -32,12 +35,14 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
-public class Main extends AppCompatActivity {
+public class Browse extends AppCompatActivity {
     int external_storage_permission_code;
+
+    ConstraintLayout clMain;
     LinearLayout llSongList;
     List<Song> songList;
     Context context;
@@ -54,9 +59,18 @@ public class Main extends AppCompatActivity {
     ConstraintSet csPlay;
     ConstraintLayout clPlayer;
     TransitionSet transition;
+    LinearLayout llSelection;
+    ImageButton imgBtnPlay;
+    ImageButton imgBtnAdd;
+
+
 
     float oldX;
     float oldY;
+    Boolean isSelectionMode = false;
+    Boolean isHoldingPlay = false;
+
+    ConstraintLayout.LayoutParams defaultParams;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +79,8 @@ public class Main extends AppCompatActivity {
         initializeReferences();
         prepareMusicManager();
         initializeEventListener();
+
+
     }
 
     @SuppressLint("RestrictedApi")
@@ -102,18 +118,52 @@ public class Main extends AppCompatActivity {
         return true;
     }
 
-    private void prepareMusicManager() {
-        if (ContextCompat.checkSelfPermission(Main.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            musicManager.setSongList(ContentLoader.load(getBaseContext()));
-            songList = musicManager.getSongList();
-            createSongs(llSongList);
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        refreshData();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(!isSelectionMode) {
+            super.onBackPressed();
         } else {
-            requestPermission();
+            isSelectionMode = false;
+            for (CheckBox cb : getAllCheckboxes()) {
+                if(cb.isChecked()) {
+                    cb.toggle();
+                }
+            }
+            toggleSelection();
+        }
+    }
+
+    private void toggleSelection() {
+        if(isSelectionMode) {
+            llSelection.setVisibility(View.VISIBLE);
+            for(CheckBox c : getAllCheckboxes()) {
+                c.setVisibility(View.VISIBLE);
+            }
+        } else {
+            llSelection.setVisibility(View.GONE);
+            for(CheckBox c : getAllCheckboxes()) {
+                c.setVisibility(View.INVISIBLE);
+            }
         }
     }
 
     private void initializeReferences() {
-        musicManager = new MusicManager();
+        if(musicManager == null) {
+            if(DataManager.getMusicManager() != null) {
+                musicManager = DataManager.getMusicManager();
+            } else {
+                musicManager = new MusicManager();
+            }
+        }
+
+        clMain = findViewById(R.id.clMain);
         llSongList = findViewById(R.id.llSongList);
         context = getBaseContext();
         currentSong = findViewById(R.id.txtCurrentSong);
@@ -124,6 +174,19 @@ public class Main extends AppCompatActivity {
         clPlayer = findViewById(R.id.clPlayer);
         cs = new ConstraintSet();
         csPlay = new ConstraintSet();
+        llSelection = findViewById(R.id.llSelection);
+        imgBtnPlay = findViewById(R.id.imgBtnPlaySelection);
+        imgBtnAdd = findViewById(R.id.imgBtnAddSelection);
+    }
+
+    private void prepareMusicManager() {
+        if(musicManager.getSongList() != null) {
+            if(llSongList.getChildCount() < 1) {
+                createSongs(llSongList);
+            }
+        } else {
+            Toast.makeText(this, "Keine Lieder im Musik-Ordner vorhanden!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -165,50 +228,86 @@ public class Main extends AppCompatActivity {
             }
         });
 
+        btnPlay.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(!isHoldingPlay) {
+                    isHoldingPlay = true;
+
+                    transition = new TransitionSet().addTransition(new ChangeBounds()).setDuration(100);
+                    TransitionManager.beginDelayedTransition(clPlayer, transition);
+                    ViewGroup.LayoutParams params = btnPlay.getLayoutParams();
+
+                    params.height = Tools.dpToPx(100, Browse.this);
+                    params.width = Tools.dpToPx(100, Browse.this);
+
+                    btnPlay.setLayoutParams(params);
+                }
+
+                return false;
+            }
+        });
+
         btnPlay.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+
+                if(!isHoldingPlay) {
+                    return false;
+                }
+
                 if(event.getAction() == MotionEvent.ACTION_DOWN) {
-                    transition = new TransitionSet().addTransition(new ChangeBounds()).setDuration(100).setStartDelay(150);
-                    TransitionManager.beginDelayedTransition(clPlayer, transition);
-                    ViewGroup.LayoutParams params = btnPlay.getLayoutParams();
-
-                    params.height = Tools.dpToPx(100, Main.this);
-                    params.width = Tools.dpToPx(100, Main.this);
-
-                    btnPlay.setLayoutParams(params);
-                } else if(event.getAction() == MotionEvent.ACTION_MOVE) {
-                    //Brauch ich hier wirklich was?
-                    //eigentlich nur, wenn ich den Button tatsächlich als "Joystick" bewegen will
 
                 } else if(event.getAction() == MotionEvent.ACTION_UP) {
                     transition = new TransitionSet().addTransition(new ChangeBounds()).setDuration(100);
                     TransitionManager.beginDelayedTransition(clPlayer, transition);
                     ViewGroup.LayoutParams params = btnPlay.getLayoutParams();
 
-                    params.height = Tools.dpToPx(50, Main.this);
-                    params.width = Tools.dpToPx(50, Main.this);
+                    params.height = Tools.dpToPx(50, Browse.this);
+                    params.width = Tools.dpToPx(50, Browse.this);
 
                     btnPlay.setLayoutParams(params);
 
                     //Check for the swiping direction
-
-                    //LEFT - RIGHT
-                    if(oldX > event.getX()) {
-
+                    if(Math.abs(oldX - event.getX()) > Math.abs(oldY - event.getY())) {
+                        //LEFT - RIGHT
+                        if(oldX > event.getX()) {
+                            musicManager.backSong();
+                            refreshData();
+                            Toast.makeText(Browse.this, "Back", Toast.LENGTH_SHORT).show();
+                        } else {
+                            musicManager.skipSong();
+                            refreshData();
+                            Toast.makeText(Browse.this, "Skip", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-
+                        //UP - DOWN
+                        if (oldY > event.getY()) {
+                            musicManager.toggleLoop();
+                            Toast.makeText(Browse.this, "Loop", Toast.LENGTH_SHORT).show();
+                        } else {
+                            musicManager.toggleShuffle();
+                            Toast.makeText(Browse.this, "Shuffle", Toast.LENGTH_SHORT).show();
+                        }
                     }
+                    isHoldingPlay = false;
 
-                    //UP - DOWN
-                    if (oldY > event.getY()) {
-                        musicManager.toggleLoop();
-                    } else {
-                        musicManager.toggleShuffle();
-                    }
+                } else if(event.getAction() == MotionEvent.ACTION_MOVE) {
+//                    ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) btnPlay.getLayoutParams();
+//
+//                    if(Math.abs(oldX - event.getX()) > Math.abs(oldY - event.getY())) {
+//                        params.leftMargin = (int)(event.getX() - oldX);
+//                        params.topMargin = (int)oldY;
+//                    } else {
+//                        params.topMargin = (int)(event.getY() - oldY);
+//                        params.leftMargin = (int)oldX;
+//                    }
+//
+//                    btnPlay.setLayoutParams(params);
 
                 }
+
                 return false;
             }
         });
@@ -216,23 +315,43 @@ public class Main extends AppCompatActivity {
         clPlayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Main.this, Player.class);
+                Intent intent = new Intent(Browse.this, Player.class);
                 DataManager.setMusicManager(musicManager);
                 startActivity(intent);
             }
         });
 
         musicManager.setSeekBarData(sbHandler, sbUpdater);
+
+        imgBtnPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Song> tmp = new ArrayList<>();
+                for(CheckBox c : getAllCheckboxes() ) {
+
+                    if(c.isChecked()) {
+                        Song s = new Song();
+                        s = musicManager.getSongById((Integer) ((ConstraintLayout)c.getParent()).getTag());
+                        tmp.add(s);
+                    }
+                }
+                if(tmp.size() > 0) {
+                    isSelectionMode = false;
+                    musicManager.setSongSelection(tmp);
+                    toggleSelection();
+                    refreshData();
+
+                } else {
+                    Toast.makeText(Browse.this, "Keine Lieder ausgewählt", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
-    private void callNextSong() {
-        musicManager.changeSong(musicManager.getNextSong());
-        musicManager.setSongsByCurrentSong();
-    }
-
-
+    @SuppressLint("ClickableViewAccessibility")
     private void createSongs(final LinearLayout llSongList) {
 
+        songList = musicManager.getSongList();
         sbSongProgress.setPadding(0, 0, 0, 0);
 
         if(musicManager.getCurrentSong() == null) {
@@ -241,8 +360,8 @@ public class Main extends AppCompatActivity {
         }
 
         if(currentSong.getText().equals("")) {
-            currentSong.setText(songList.get(0).getTitle());
-            currentArtist.setText(songList.get(0).getInterpret());
+            currentSong.setText(musicManager.getCurrentSong().getTitle());
+            currentArtist.setText(musicManager.getCurrentSong().getInterpret());
         }
 
         for(Song s : songList) {
@@ -252,6 +371,8 @@ public class Main extends AppCompatActivity {
             final TextView txtSongDuration = new TextView(this);
             final View viewSeperator = new View(this);
             final Button btnPlaySong = new Button(this);
+            final ImageView imgView = new ImageView(this);
+            final CheckBox cbSelect = new CheckBox(this);
 
             clSong.setTag(s.getId());
             txtSongTitle.setId(View.generateViewId());
@@ -260,6 +381,8 @@ public class Main extends AppCompatActivity {
             viewSeperator.setId(View.generateViewId());
             clSong.setId(View.generateViewId());
             btnPlaySong.setId(View.generateViewId());
+            imgView.setId(View.generateViewId());
+            cbSelect.setId(View.generateViewId());
 
             new ConstraintSet().constrainHeight(clSong.getId(), Tools.dpToPx(100, this));
             clSong.setBackgroundColor(this.getColor(R.color.colorSecondaryDark));
@@ -267,27 +390,36 @@ public class Main extends AppCompatActivity {
             clSong.addView(txtSongArtist, 1);
             clSong.addView(txtSongDuration, 2);
             clSong.addView(viewSeperator, 3);
+            clSong.addView(imgView, 4);
+            clSong.addView(cbSelect, 5);
+
             clSong.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    togglePlayButton(btnPlaySong);
-                    togglePlayButton((btnPlay));
-                    TransitionManager.beginDelayedTransition(clSong);
-                    musicManager.changeSong(musicManager.getSongById((Integer) view.getTag()));
-                    currentSong.setText(musicManager.getCurrentSong().getTitle());
-                    currentArtist.setText(musicManager.getCurrentSong().getInterpret());
+                    if(!isSelectionMode) {
+                        togglePlayButton(btnPlaySong);
+                        togglePlayButton((btnPlay));
+                        TransitionManager.beginDelayedTransition(clSong);
+                        musicManager.changeSong(musicManager.getSongById((Integer) view.getTag()));
 
-                    for(int i = 0; i < llSongList.getChildCount(); i++) {
-                        if(llSongList.getChildAt(i).getId() == view.getId()) {
-                            if(musicManager.getPlayer().isPlaying()) {
-                                view.setBackgroundColor(Main.this.getColor(R.color.colorAccent));
-                            } else {
-                                view.setBackgroundColor(Main.this.getColor(R.color.colorSecondaryDark));
-                            }
-                        } else {
-                            llSongList.getChildAt(i).setBackgroundColor(Main.this.getColor(R.color.colorSecondaryDark));
-                        }
+                        refreshData();
+                    } else {
+                        cbSelect.toggle();
+
+//                        musicManager.getSongById((Integer)clSong.getTag()).toggleSelection();
                     }
+                }
+            });
+
+            clSong.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    isSelectionMode = true;
+
+                    toggleSelection();
+
+
+                    return false;
                 }
             });
 
@@ -330,17 +462,23 @@ public class Main extends AppCompatActivity {
             cs.connect(viewSeperator.getId(), ConstraintSet.LEFT, txtSongTitle.getId(), ConstraintSet.LEFT, Tools.dpToPx(70, this));
             cs.applyTo(clSong);
 
-//            btnPlaySong.setBackgroundResource(R.drawable.ic_play_arrow_black_24dp);
-//            btnPlaySong.setWidth(Tools.dpToPx(25, this));
-//            btnPlaySong.setHeight(Tools.dpToPx(35, this));
-//
-//            cs.centerVertically(btnPlaySong.getId(), clSong.getId());
-//            cs.connect(btnPlaySong.getId(), ConstraintSet.TOP, clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(0, this));
-//            cs.connect(btnPlaySong.getId(), ConstraintSet.BOTTOM, clSong.getId(), ConstraintSet.BOTTOM, Tools.dpToPx(0, this));
-//            cs.applyTo(clSong);
+//            imgView.setImageBitmap(s.getCover());
+
+            cs.connect(imgView.getId(), ConstraintSet.LEFT, clSong.getId(), ConstraintSet.LEFT, 0);
+            cs.connect(imgView.getId(), ConstraintSet.TOP, clSong.getId(), ConstraintSet.TOP, 0);
+            cs.applyTo(clSong);
+
+            cbSelect.setHighlightColor(getColor(R.color.colorAccent));
+
+            cs.connect(cbSelect.getId(), ConstraintSet.LEFT , clSong.getId(), ConstraintSet.LEFT, Tools.dpToPx(20, this));
+            cs.connect(cbSelect.getId(), ConstraintSet.TOP , clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(20, this));
+            cs.applyTo(clSong);
 
             llSongList.addView(clSong);
         }
+
+
+        toggleSelection();
     }
 
     private void togglePlayButton(View view) {
@@ -357,21 +495,51 @@ public class Main extends AppCompatActivity {
         }
     }
 
-    private void requestPermission() {
-        if(!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-        }
-        ActivityCompat.requestPermissions(Main.this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, external_storage_permission_code);
-    }
+    private void refreshData() {
+        currentSong.setText(musicManager.getCurrentSong().getTitle());
+        currentArtist.setText(musicManager.getCurrentSong().getInterpret());
+        btnPlay.setBackgroundResource(R.drawable.playbutton_animation);
 
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode == external_storage_permission_code) {
-            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                songList = ContentLoader.load(getBaseContext());
-                createSongs(llSongList);
-                musicManager.setSongList(songList);
+        for(int i = 0; i < llSongList.getChildCount(); i++) {
+            if((Integer)llSongList.getChildAt(i).getTag() == musicManager.getCurrentSong().getId()) {
+                llSongList.getChildAt(i).setBackgroundColor(Browse.this.getColor(R.color.colorAccent));
+                ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(2)).setTextColor(getColor(R.color.colorPrimaryDark));
             } else {
-                Toast.makeText(this, "Keine Berechtigungen", Toast.LENGTH_SHORT).show();
+                llSongList.getChildAt(i).setBackgroundColor(getColor(R.color.colorSecondaryDark));
+                ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(2)).setTextColor(getColor(R.color.colorAccent));
             }
         }
+    }
+
+    private void callNextSong() {
+        musicManager.changeSong(musicManager.getNextSong());
+        musicManager.setSongsByCurrentSong();
+    }
+
+    private List<View> getChildren(ViewGroup vg) {
+        List<View> views = new ArrayList<>();
+
+        for(int i = 0; i < vg.getChildCount(); i++) {
+            views.add(vg.getChildAt(i));
+        }
+
+        return views;
+    }
+
+    private List<CheckBox> getAllCheckboxes() {
+
+        List<CheckBox> checkBoxes = new ArrayList<>();
+
+        for(View view : getChildren(llSongList))  {
+            if(view instanceof ViewGroup) {
+                for(View cb : getChildren((ViewGroup) view)) {
+                    if(cb instanceof CheckBox) {
+                        checkBoxes.add((CheckBox) cb);
+                    }
+                }
+            }
+        }
+
+        return checkBoxes;
     }
 }

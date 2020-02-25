@@ -1,5 +1,8 @@
 package com.example.lyritic;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -18,13 +21,15 @@ public class Song implements Serializable {
 
     private Date dateAdded;
 
+    private Bitmap cover;
+
     private double duration;
     private double size;
+    private Boolean isSelected = false;
 
     private int id;
 
-    public Song()
-    {
+    public Song() {
         count++;
         id = count;
     }
@@ -34,9 +39,17 @@ public class Song implements Serializable {
         long min = (seconds % 3600) / 60;
         long sec = seconds % 60;
 
-        formatDuration = String.format("%02d:%02d",  min, sec);
+        formatDuration = String.format("%02d:%02d", min, sec);
 
         return formatDuration;
+    }
+
+    public void toggleSelection() {
+        if (!isSelected) {
+            isSelected = true;
+        } else {
+            isSelected = false;
+        }
     }
 
     public String getCoverPath() {
@@ -133,5 +146,21 @@ public class Song implements Serializable {
 
     public void setFormatDuration(String formatDuration) {
         this.formatDuration = formatDuration;
+    }
+
+    public Bitmap getCover() {
+        return cover;
+    }
+
+    public void setCover(Bitmap cover) {
+        this.cover = cover;
+    }
+
+    public Boolean getSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(Boolean selected) {
+        isSelected = selected;
     }
 }

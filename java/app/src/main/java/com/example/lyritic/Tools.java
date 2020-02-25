@@ -16,7 +16,7 @@ public class Tools {
         return Math.round(px);
     }
 
-    public static Bitmap createClippingMask(Bitmap image, Bitmap mask) {
+    public static Bitmap createClippingMask(Bitmap image, Bitmap mask, Boolean isCover) {
         Bitmap result;
         Bitmap bitmapMask;
 
@@ -25,6 +25,7 @@ public class Tools {
         }
 
         result = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+
         bitmapMask = Bitmap.createScaledBitmap(mask, image.getWidth(), image.getHeight(), true);
 
         Canvas c = new Canvas(result);
