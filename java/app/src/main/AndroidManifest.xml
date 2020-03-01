@@ -24,7 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Browse" android:logo="@drawable/ic_lyritic_logo" android:screenOrientation="portrait"
+        <activity android:name=".Browse" android:theme="@style/AppTheme.NoActionBar" android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity">
 
         </activity>

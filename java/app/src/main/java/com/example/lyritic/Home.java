@@ -4,17 +4,24 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
-public class Home extends AppCompatActivity {
+import com.google.android.material.navigation.NavigationView;
+
+public class Home extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     MusicManager musicManager;
     final int external_storage_permission_code = 1;
@@ -23,36 +30,61 @@ public class Home extends AppCompatActivity {
     ImageButton imgButtonSettings;
     ImageButton imgButtonStats;
 
+    DrawerLayout drawer;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.home);
+        setContentView(R.layout.drawer_layout);
 
-        initialize();
+
+        initialize(savedInstanceState);
+
         checkAppPermissions();
-        initializeListener();
+//        initializeListener();
     }
 
-    private void initialize() {
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        System.out.println("TEST");
+        switch(item.getItemId()) {
+            case R.id.nav_browse:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
+                break;
+
+        }
+        return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void initialize(Bundle savedInstanceState) {
         musicManager = new MusicManager();
+        DataManager.setMusicManager(musicManager);
 
-        imgButtonBrowse = findViewById(R.id.imgBtnHomeBrowse);
-        imgButtonPlaylists = findViewById(R.id.imgBtnHomePlaylists);
-        imgButtonSettings = findViewById(R.id.imgBtnHomeSettings);
-        imgButtonStats = findViewById(R.id.imgBtnHomeStats);
-    }
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-    private void initializeListener() {
+        drawer = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.app_name, R.string.app_name);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
 
-        imgButtonBrowse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Home.this, Browse.class);
-                DataManager.setMusicManager(musicManager);
-                startActivity(intent);
-            }
-        });
+        if(savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
+            navigationView.setCheckedItem(R.id.nav_browse);
+        }
+
     }
 
     private void checkAppPermissions() {

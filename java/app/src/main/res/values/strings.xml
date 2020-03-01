@@ -5,4 +5,9 @@
     <string name="sortDate">Datum</string>
     <string name="sortAlbum">Album</string>
     <string name="sortLength">Länge</string>
+    <string name="browse">Browse</string>
+    <string name="others">Others</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
