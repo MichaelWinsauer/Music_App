@@ -5,14 +5,13 @@ import android.os.Handler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-public class MusicManager implements Serializable {
+public class MusicManager {
     private Song currentSong;
     private Song prevSong;
     private Song nextSong;
@@ -120,7 +119,9 @@ public class MusicManager implements Serializable {
     }
 
     public void skipTo(int progress) {
-        player.seekTo((int)Math.round(currentSong.getDuration() / 100 * progress * 1000));
+        if(currentSong != null) {
+            player.seekTo((int)Math.round(currentSong.getDuration() / 100 * progress * 1000));
+        }
     }
 
     public void toggleLoop() {
@@ -342,7 +343,7 @@ public class MusicManager implements Serializable {
     private void defaultSorting() {
         sortSongList(R.id.sortDate);
         Collections.reverse(songList);
-        if(currentSong == null && songList != null) {
+        if(currentSong == null && songList != null && songList.size() > 0) {
             currentSong = songList.get(0);
             setSongsByCurrentSong();
         }

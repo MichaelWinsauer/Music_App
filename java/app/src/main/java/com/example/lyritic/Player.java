@@ -1,5 +1,6 @@
 package com.example.lyritic;
 
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ public class Player extends AppCompatActivity {
     ImageButton btnRepeat;
     ImageButton btnShuffle;
     MusicManager musicManager;
+    ImageButton btnDetails;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,7 +43,9 @@ public class Player extends AppCompatActivity {
 
         initializeReferences();
         initializeEventListener();
-        displayData();
+        if(musicManager.getCurrentSong() != null) {
+            displayData();
+        }
     }
 
     private void initializeReferences() {
@@ -57,6 +61,7 @@ public class Player extends AppCompatActivity {
         btnNext = findViewById(R.id.imgbtnNext);
         btnRepeat = findViewById(R.id.imgbtnRepeat);
         btnShuffle = findViewById(R.id.imgbtnShuffle);
+        btnDetails = findViewById(R.id.imgBtnDetails);
     }
 
     private void initializeEventListener() {
@@ -96,6 +101,14 @@ public class Player extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 musicManager.toggleShuffle();
+            }
+        });
+
+        btnDetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Player.this, Details.class);
+                startActivity(intent);
             }
         });
     }

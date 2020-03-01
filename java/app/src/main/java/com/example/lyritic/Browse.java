@@ -104,6 +104,10 @@ public class Browse extends AppCompatActivity {
             menuItem = menu.findItem(R.id.sortDate);
         }
 
+        if(musicManager.getSongList().size() <= 0) {
+            return true;
+        }
+
         if(menuItem.getItemId() != item.getItemId() ) {
             songList = musicManager.sortSongList(item.getItemId());
         } else {
@@ -180,13 +184,14 @@ public class Browse extends AppCompatActivity {
     }
 
     private void prepareMusicManager() {
-        if(musicManager.getSongList() != null) {
+        if(musicManager.getSongList() != null && musicManager.getSongList().size() > 0) {
             if(llSongList.getChildCount() < 1) {
                 createSongs(llSongList);
             }
         } else {
             Toast.makeText(this, "Keine Lieder im Musik-Ordner vorhanden!", Toast.LENGTH_SHORT).show();
         }
+        toggleSelection();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -476,9 +481,6 @@ public class Browse extends AppCompatActivity {
 
             llSongList.addView(clSong);
         }
-
-
-        toggleSelection();
     }
 
     private void togglePlayButton(View view) {
@@ -496,6 +498,10 @@ public class Browse extends AppCompatActivity {
     }
 
     private void refreshData() {
+
+        if(musicManager.getSongList().size() <= 0) {
+            return;
+        }
         currentSong.setText(musicManager.getCurrentSong().getTitle());
         currentArtist.setText(musicManager.getCurrentSong().getInterpret());
         btnPlay.setBackgroundResource(R.drawable.playbutton_animation);

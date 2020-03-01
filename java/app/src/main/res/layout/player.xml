@@ -125,4 +125,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/__tmp_shape" />
 
+    <ImageButton
+        android:id="@+id/imgBtnDetails"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/colorPrimary"
+        android:tint="@color/colorPrimaryDark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ivCover"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/hamburger_menu" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
