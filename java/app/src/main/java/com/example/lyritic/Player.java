@@ -1,6 +1,7 @@
 package com.example.lyritic;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ public class Player extends AppCompatActivity {
 
     ConstraintLayout clBase;
     ImageView ivCover;
+    ImageView ivCover_15x1;
     TextView txtTitle;
     TextView txtArtist;
     TextView txtDuration;
@@ -62,6 +64,7 @@ public class Player extends AppCompatActivity {
         btnRepeat = findViewById(R.id.imgbtnRepeat);
         btnShuffle = findViewById(R.id.imgbtnShuffle);
         btnDetails = findViewById(R.id.imgBtnDetails);
+        ivCover_15x1 = findViewById(R.id.ivCover15x1);
     }
 
     private void initializeEventListener() {
@@ -111,6 +114,8 @@ public class Player extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
     }
 
     private void displayData() {
@@ -118,21 +123,42 @@ public class Player extends AppCompatActivity {
     }
 
     private void displayImage() {
-        if(musicManager.getCurrentSong().getCover() != null ) {
-            ivCover.setImageBitmap(Tools.createClippingMask(
-                    musicManager.getCurrentSong().getCover(),
-                    BitmapFactory.decodeResource(getResources(), R.drawable.cover_mask),
-                    true
-                    )
-            );
 
+
+        if(musicManager.getCurrentSong().getCover() != null ) {
+            if(musicManager.getCurrentSong().getCover().getWidth() == musicManager.getCurrentSong().getCover().getHeight()) {
+                ivCover.setImageBitmap(Tools.createClippingMask(
+                        musicManager.getCurrentSong().getCover(),
+                        BitmapFactory.decodeResource(getResources(), R.drawable.cover_mask)
+                        )
+                );
+                ivCover_15x1.setVisibility(View.INVISIBLE);
+                ivCover.setVisibility(View.VISIBLE);
+            } else if(musicManager.getCurrentSong().getCover().getWidth() < musicManager.getCurrentSong().getCover().getHeight()) {
+                ivCover_15x1.setImageBitmap(Tools.createClippingMask(
+                        musicManager.getCurrentSong().getCover(),
+                        BitmapFactory.decodeResource(getResources(), R.drawable.cover_mask_1_5x1)
+                        )
+                );
+                ivCover_15x1.setVisibility(View.INVISIBLE);
+                ivCover.setVisibility(View.VISIBLE);
+            } else {
+                ivCover.setImageBitmap(Tools.createClippingMask(
+                        musicManager.getCurrentSong().getCover(),
+                        BitmapFactory.decodeResource(getResources(), R.drawable.cover_mask)
+                        )
+                );
+                ivCover_15x1.setVisibility(View.INVISIBLE);
+                ivCover.setVisibility(View.VISIBLE);
+            }
         } else {
-            ivCover.setImageBitmap(Tools.createClippingMask(
+            ivCover_15x1.setImageBitmap(Tools.createClippingMask(
                     BitmapFactory.decodeResource(getResources(), R.drawable.gthf61nec1h41),
-                    BitmapFactory.decodeResource(getResources(), R.drawable.cover_mask),
-                    true
+                    BitmapFactory.decodeResource(getResources(), R.drawable.cover_mask_1_5x1)
                     )
             );
+            ivCover_15x1.setVisibility(View.VISIBLE);
+            ivCover.setVisibility(View.INVISIBLE);
         }
     }
 

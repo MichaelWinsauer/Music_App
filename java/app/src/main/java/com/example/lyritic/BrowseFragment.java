@@ -3,6 +3,8 @@ package com.example.lyritic;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
@@ -28,27 +30,16 @@ import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link BrowseFragment#newInstance} factory method to
- * create an instance of root.getContext(). fragment.
- */
-public class BrowseFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-//    private static final String ARG_PARAM1 = "param1";
-//    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-//    private String mParam1;
-//    private String mParam2;
-    
+public class BrowseFragment extends Fragment {
+
     private View root;
     private ConstraintLayout clMain;
     private LinearLayout llSongList;
@@ -72,24 +63,13 @@ public class BrowseFragment extends Fragment {
     private ImageButton imgBtnAdd;
 
 
-
     private float oldX;
     private float oldY;
-    private Boolean isSelectionMode = false;
     private Boolean isHoldingPlay = false;
     public BrowseFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use root.getContext(). factory method to create a new instance of
-     * root.getContext(). fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment BrowseFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static BrowseFragment newInstance(String param1, String param2) {
         BrowseFragment fragment = new BrowseFragment();
         Bundle args = new Bundle();
@@ -102,10 +82,10 @@ public class BrowseFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
+//        if (getArguments() != null) {
 //            mParam1 = getArguments().getString(ARG_PARAM1);
 //            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+//        }
     }
 
     @Override
@@ -166,23 +146,8 @@ public class BrowseFragment extends Fragment {
         refreshData();
     }
 
-//    @Override
-//    public void onBackPressed() {
-//        if(!isSelectionMode) {
-//            super.onBackPressed();
-//        } else {
-//            isSelectionMode = false;
-//            for (CheckBox cb : getAllCheckboxes()) {
-//                if(cb.isChecked()) {
-//                    cb.toggle();
-//                }
-//            }
-//            toggleSelection();
-//        }
-//    }
-
-    private void toggleSelection() {
-        if(isSelectionMode) {
+    public void toggleSelection() {
+        if(musicManager.getSelectionMode()) {
             llSelection.setVisibility(View.VISIBLE);
             for(CheckBox c : getAllCheckboxes()) {
                 c.setVisibility(View.VISIBLE);
@@ -223,6 +188,7 @@ public class BrowseFragment extends Fragment {
     private void prepareMusicManager() {
         if(musicManager.getSongList() != null && musicManager.getSongList().size() > 0) {
             if(llSongList.getChildCount() < 1) {
+
                 createSongs(llSongList);
             }
         } else {
@@ -249,6 +215,7 @@ public class BrowseFragment extends Fragment {
                 if(!musicManager.getPlayer().isPlaying()) {
                     callNextSong();
                 }
+
                 sbHandler.postDelayed(this, 50);
             }
         };
@@ -335,19 +302,6 @@ public class BrowseFragment extends Fragment {
                     }
                     isHoldingPlay = false;
 
-                } else if(event.getAction() == MotionEvent.ACTION_MOVE) {
-//                    ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) btnPlay.getLayoutParams();
-//
-//                    if(Math.abs(oldX - event.getX()) > Math.abs(oldY - event.getY())) {
-//                        params.leftMargin = (int)(event.getX() - oldX);
-//                        params.topMargin = (int)oldY;
-//                    } else {
-//                        params.topMargin = (int)(event.getY() - oldY);
-//                        params.leftMargin = (int)oldX;
-//                    }
-//
-//                    btnPlay.setLayoutParams(params);
-
                 }
 
                 return false;
@@ -378,7 +332,7 @@ public class BrowseFragment extends Fragment {
                     }
                 }
                 if(tmp.size() > 0) {
-                    isSelectionMode = false;
+                    musicManager.setSelectionMode(false);
                     musicManager.setSongSelection(tmp);
                     toggleSelection();
                     refreshData();
@@ -390,10 +344,11 @@ public class BrowseFragment extends Fragment {
         });
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     private void createSongs(final LinearLayout llSongList) {
 
         songList = musicManager.getSongList();
+        llSongList.removeAllViews();
+
         sbSongProgress.setPadding(0, 0, 0, 0);
 
         if(musicManager.getCurrentSong() == null) {
@@ -415,6 +370,7 @@ public class BrowseFragment extends Fragment {
             final Button btnPlaySong = new Button(root.getContext());
             final ImageView imgView = new ImageView(root.getContext());
             final CheckBox cbSelect = new CheckBox(root.getContext());
+            final ImageButton imgBtnFav = new ImageButton(root.getContext());
 
             clSong.setTag(s.getId());
             txtSongTitle.setId(View.generateViewId());
@@ -425,6 +381,7 @@ public class BrowseFragment extends Fragment {
             btnPlaySong.setId(View.generateViewId());
             imgView.setId(View.generateViewId());
             cbSelect.setId(View.generateViewId());
+            imgBtnFav.setId(View.generateViewId());
 
             new ConstraintSet().constrainHeight(clSong.getId(), Tools.dpToPx(100, getActivity()));
             clSong.setBackgroundColor(root.getContext().getColor(R.color.colorSecondaryDark));
@@ -434,11 +391,12 @@ public class BrowseFragment extends Fragment {
             clSong.addView(viewSeperator, 3);
             clSong.addView(imgView, 4);
             clSong.addView(cbSelect, 5);
+            clSong.addView(imgBtnFav, 6);
 
             clSong.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(!isSelectionMode) {
+                    if(!musicManager.getSelectionMode()) {
                         togglePlayButton(btnPlaySong);
                         togglePlayButton((btnPlay));
                         TransitionManager.beginDelayedTransition(clSong);
@@ -456,12 +414,23 @@ public class BrowseFragment extends Fragment {
             clSong.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    isSelectionMode = true;
+                    musicManager.setSelectionMode(true);
 
                     toggleSelection();
 
 
                     return false;
+                }
+            });
+
+            imgBtnFav.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(musicManager.toggleFavorite(musicManager.getSongById((Integer)clSong.getTag()))) {
+                        imgBtnFav.setImageResource(R.drawable.heart);
+                    } else {
+                        imgBtnFav.setImageResource(R.drawable.heart_outline);
+                    }
                 }
             });
 
@@ -516,6 +485,13 @@ public class BrowseFragment extends Fragment {
             cs.connect(cbSelect.getId(), ConstraintSet.TOP , clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(20, getActivity()));
             cs.applyTo(clSong);
 
+            imgBtnFav.setBackgroundColor(root.getContext().getColor(R.color.colorTransparent));
+            imgBtnFav.setImageResource(R.drawable.heart_outline);
+
+            cs.connect(imgBtnFav.getId(), ConstraintSet.RIGHT,  txtSongDuration.getId(), ConstraintSet.LEFT, Tools.dpToPx(20, getActivity()));
+            cs.connect(imgBtnFav.getId(), ConstraintSet.TOP,  clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(15, getActivity()));
+            cs.applyTo(clSong);
+
             llSongList.addView(clSong);
         }
     }
@@ -546,10 +522,18 @@ public class BrowseFragment extends Fragment {
         for(int i = 0; i < llSongList.getChildCount(); i++) {
             if((Integer)llSongList.getChildAt(i).getTag() == musicManager.getCurrentSong().getId()) {
                 llSongList.getChildAt(i).setBackgroundColor(root.getContext().getColor(R.color.colorAccent));
+                ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(0)).setTextColor(root.getContext().getColor(R.color.colorPrimaryDark));
+                ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(1)).setTextColor(root.getContext().getColor(R.color.colorPrimaryDark));
                 ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(2)).setTextColor(root.getContext().getColor(R.color.colorPrimaryDark));
+                ((ImageButton)getChildren((ViewGroup)llSongList.getChildAt(i)).get(6)).setColorFilter(ContextCompat.getColor(context, R.color.colorPrimaryDark), android.graphics.PorterDuff.Mode.SRC_IN);
+
+
             } else {
                 llSongList.getChildAt(i).setBackgroundColor(root.getContext().getColor(R.color.colorSecondaryDark));
+                ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(0)).setTextColor(root.getContext().getColor(R.color.colorPrimary));
+                ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(1)).setTextColor(root.getContext().getColor(R.color.colorPrimary));
                 ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(2)).setTextColor(root.getContext().getColor(R.color.colorAccent));
+                ((ImageButton)getChildren((ViewGroup)llSongList.getChildAt(i)).get(6)).setColorFilter(ContextCompat.getColor(context, R.color.colorPrimary), android.graphics.PorterDuff.Mode.SRC_IN);
             }
         }
     }
@@ -585,6 +569,4 @@ public class BrowseFragment extends Fragment {
 
         return checkBoxes;
     }
-    
-    
 }

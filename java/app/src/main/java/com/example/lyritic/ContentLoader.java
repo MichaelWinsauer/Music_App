@@ -50,10 +50,15 @@ class ContentLoader {
             s.setDateAdded(new java.util.Date((long)Double.parseDouble(c.getString(7))*1000));
 
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            mmr.setDataSource(s.getAbsolutePath());
 
-            if(mmr.getEmbeddedPicture() != null) {
-                s.setCover(BitmapFactory.decodeByteArray(mmr.getEmbeddedPicture(), 0, mmr.getEmbeddedPicture().length));
+            try {
+                mmr.setDataSource(s.getAbsolutePath());
+
+                if(mmr.getEmbeddedPicture() != null) {
+                    s.setCover(BitmapFactory.decodeByteArray(mmr.getEmbeddedPicture(), 0, mmr.getEmbeddedPicture().length));
+                }
+            } catch (Exception e) {
+                continue;
             }
 
             songs.add(s);

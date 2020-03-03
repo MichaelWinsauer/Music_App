@@ -5,6 +5,7 @@ import android.os.Handler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,6 +25,9 @@ public class MusicManager {
     private List<Song> backup;
     private Boolean isShuffled = false;
     private List<Song> selectionBackup;
+    private List<Song> favorites = new ArrayList<>();
+    private Boolean isSelectionMode = false;
+    private Boolean selectionModeChanged = false;
 
     public MusicManager() {
         songList = new ArrayList<>();
@@ -47,7 +51,7 @@ public class MusicManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        Stats.listend(currentSong);
         player.start();
     }
 
@@ -195,6 +199,16 @@ public class MusicManager {
         }
     }
 
+    public Boolean toggleFavorite(Song s) {
+        if(!favorites.contains(s)) {
+            favorites.add(s);
+            return true;
+        } else {
+            favorites.remove(s);
+            return false;
+        }
+    }
+
 
     public int getPercentageProgress() {
         return (int)Math.round( (player.getCurrentPosition() / 1000) / currentSong.getDuration() * 100) ;
@@ -264,23 +278,23 @@ public class MusicManager {
                 };
                 break;
 
-            case R.id.sortAlbum:
-                comparator = new Comparator<Song>() {
-                    @Override
-                    public int compare(Song o1, Song o2) {
-                        return o1.getAlbum().compareTo(o2.getAlbum());
-                    }
-                };
-                break;
-
-            case R.id.sortLength:
-                comparator = new Comparator<Song>() {
-                    @Override
-                    public int compare(Song o1, Song o2) {
-                        return ((Integer) Math.round((long) o1.getDuration())).compareTo(Math.round((long) o2.getDuration()));
-                    }
-                };
-                break;
+//            case R.id.sortAlbum:
+//                comparator = new Comparator<Song>() {
+//                    @Override
+//                    public int compare(Song o1, Song o2) {
+//                        return o1.getAlbum().compareTo(o2.getAlbum());
+//                    }
+//                };
+//                break;
+//
+//            case R.id.sortLength:
+//                comparator = new Comparator<Song>() {
+//                    @Override
+//                    public int compare(Song o1, Song o2) {
+//                        return ((Integer) Math.round((long) o1.getDuration())).compareTo(Math.round((long) o2.getDuration()));
+//                    }
+//                };
+//                break;
         }
 
         Collections.sort(songList, comparator);
@@ -375,5 +389,21 @@ public class MusicManager {
 
     public void setComparator(Comparator<Song> comparator) {
         this.comparator = comparator;
+    }
+
+    public Boolean getSelectionMode() {
+        return isSelectionMode;
+    }
+
+    public void setSelectionMode(Boolean selectionMode) {
+        isSelectionMode = selectionMode;
+    }
+
+    public Boolean getSelectionModeChanged() {
+        return selectionModeChanged;
+    }
+
+    public void setSelectionModeChanged(Boolean selectionModeChanged) {
+        this.selectionModeChanged = selectionModeChanged;
     }
 }

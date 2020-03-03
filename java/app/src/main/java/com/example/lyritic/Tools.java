@@ -16,7 +16,7 @@ public class Tools {
         return Math.round(px);
     }
 
-    public static Bitmap createClippingMask(Bitmap image, Bitmap mask, Boolean isCover) {
+    public static Bitmap createClippingMask(Bitmap image, Bitmap mask) {
         Bitmap result;
         Bitmap bitmapMask;
 
