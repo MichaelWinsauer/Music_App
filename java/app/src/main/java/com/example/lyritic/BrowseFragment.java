@@ -100,45 +100,6 @@ public class BrowseFragment extends Fragment {
         return root;
     }
 
-//    @SuppressLint("RestrictedApi")
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_sorting, menu);
-//        root.getContext().menu = menu;
-//
-//        if(menu instanceof MenuBuilder){
-//            MenuBuilder m = (MenuBuilder) menu;
-//            m.setOptionalIconsVisible(true);
-//        }
-//
-//        return true;
-//    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        if(menuItem == null) {
-            menuItem = menu.findItem(R.id.sortDate);
-        }
-
-        if(musicManager.getSongList().size() <= 0) {
-            return true;
-        }
-
-        if(menuItem.getItemId() != item.getItemId() ) {
-            songList = musicManager.sortSongList(item.getItemId());
-        } else {
-            Collections.reverse(songList);
-        }
-
-        llSongList.removeAllViews();
-        createSongs(llSongList);
-
-        menuItem = item;
-
-        return true;
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -368,7 +329,6 @@ public class BrowseFragment extends Fragment {
             final TextView txtSongDuration = new TextView(root.getContext());
             final View viewSeperator = new View(root.getContext());
             final Button btnPlaySong = new Button(root.getContext());
-            final ImageView imgView = new ImageView(root.getContext());
             final CheckBox cbSelect = new CheckBox(root.getContext());
             final ImageButton imgBtnFav = new ImageButton(root.getContext());
 
@@ -379,7 +339,6 @@ public class BrowseFragment extends Fragment {
             viewSeperator.setId(View.generateViewId());
             clSong.setId(View.generateViewId());
             btnPlaySong.setId(View.generateViewId());
-            imgView.setId(View.generateViewId());
             cbSelect.setId(View.generateViewId());
             imgBtnFav.setId(View.generateViewId());
 
@@ -389,9 +348,8 @@ public class BrowseFragment extends Fragment {
             clSong.addView(txtSongArtist, 1);
             clSong.addView(txtSongDuration, 2);
             clSong.addView(viewSeperator, 3);
-            clSong.addView(imgView, 4);
-            clSong.addView(cbSelect, 5);
-            clSong.addView(imgBtnFav, 6);
+            clSong.addView(cbSelect, 4);
+            clSong.addView(imgBtnFav, 5);
 
             clSong.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -473,13 +431,8 @@ public class BrowseFragment extends Fragment {
             cs.connect(viewSeperator.getId(), ConstraintSet.LEFT, txtSongTitle.getId(), ConstraintSet.LEFT, Tools.dpToPx(70, getActivity()));
             cs.applyTo(clSong);
 
-//            imgView.setImageBitmap(s.getCover());
-
-            cs.connect(imgView.getId(), ConstraintSet.LEFT, clSong.getId(), ConstraintSet.LEFT, 0);
-            cs.connect(imgView.getId(), ConstraintSet.TOP, clSong.getId(), ConstraintSet.TOP, 0);
-            cs.applyTo(clSong);
-
             cbSelect.setHighlightColor(root.getContext().getColor(R.color.colorAccent));
+            cbSelect.setVisibility(View.INVISIBLE);
 
             cs.connect(cbSelect.getId(), ConstraintSet.LEFT , clSong.getId(), ConstraintSet.LEFT, Tools.dpToPx(20, getActivity()));
             cs.connect(cbSelect.getId(), ConstraintSet.TOP , clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(20, getActivity()));
@@ -525,7 +478,7 @@ public class BrowseFragment extends Fragment {
                 ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(0)).setTextColor(root.getContext().getColor(R.color.colorPrimaryDark));
                 ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(1)).setTextColor(root.getContext().getColor(R.color.colorPrimaryDark));
                 ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(2)).setTextColor(root.getContext().getColor(R.color.colorPrimaryDark));
-                ((ImageButton)getChildren((ViewGroup)llSongList.getChildAt(i)).get(6)).setColorFilter(ContextCompat.getColor(context, R.color.colorPrimaryDark), android.graphics.PorterDuff.Mode.SRC_IN);
+                ((ImageButton)getChildren((ViewGroup)llSongList.getChildAt(i)).get(5)).setColorFilter(ContextCompat.getColor(context, R.color.colorPrimaryDark), android.graphics.PorterDuff.Mode.SRC_IN);
 
 
             } else {
@@ -533,7 +486,7 @@ public class BrowseFragment extends Fragment {
                 ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(0)).setTextColor(root.getContext().getColor(R.color.colorPrimary));
                 ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(1)).setTextColor(root.getContext().getColor(R.color.colorPrimary));
                 ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(2)).setTextColor(root.getContext().getColor(R.color.colorAccent));
-                ((ImageButton)getChildren((ViewGroup)llSongList.getChildAt(i)).get(6)).setColorFilter(ContextCompat.getColor(context, R.color.colorPrimary), android.graphics.PorterDuff.Mode.SRC_IN);
+                ((ImageButton)getChildren((ViewGroup)llSongList.getChildAt(i)).get(5)).setColorFilter(ContextCompat.getColor(context, R.color.colorPrimary), android.graphics.PorterDuff.Mode.SRC_IN);
             }
         }
     }
@@ -568,5 +521,9 @@ public class BrowseFragment extends Fragment {
         }
 
         return checkBoxes;
+    }
+
+    public void refreshSongList() {
+        createSongs(llSongList);
     }
 }

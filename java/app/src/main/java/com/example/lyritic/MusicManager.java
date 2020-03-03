@@ -249,7 +249,7 @@ public class MusicManager {
         return -1;
     }
 
-    public List<Song> sortSongList(Integer id) {
+    public List<Song> sortSongList(Integer id, Boolean asc) {
         switch (id) {
             case R.id.sortName:
                 comparator = new Comparator<Song>() {
@@ -278,26 +278,30 @@ public class MusicManager {
                 };
                 break;
 
-//            case R.id.sortAlbum:
-//                comparator = new Comparator<Song>() {
-//                    @Override
-//                    public int compare(Song o1, Song o2) {
-//                        return o1.getAlbum().compareTo(o2.getAlbum());
-//                    }
-//                };
-//                break;
-//
-//            case R.id.sortLength:
-//                comparator = new Comparator<Song>() {
-//                    @Override
-//                    public int compare(Song o1, Song o2) {
-//                        return ((Integer) Math.round((long) o1.getDuration())).compareTo(Math.round((long) o2.getDuration()));
-//                    }
-//                };
-//                break;
+            case R.id.sortAlbum:
+                comparator = new Comparator<Song>() {
+                    @Override
+                    public int compare(Song o1, Song o2) {
+                        return o1.getAlbum().compareTo(o2.getAlbum());
+                    }
+                };
+                break;
+
+            case R.id.sortLength:
+                comparator = new Comparator<Song>() {
+                    @Override
+                    public int compare(Song o1, Song o2) {
+                        return ((Integer) Math.round((long) o1.getDuration())).compareTo(Math.round((long) o2.getDuration()));
+                    }
+                };
+                break;
         }
 
         Collections.sort(songList, comparator);
+
+        if(!asc) {
+            Collections.reverse(songList);
+        }
 
         return songList;
     }
@@ -355,8 +359,7 @@ public class MusicManager {
     }
 
     private void defaultSorting() {
-        sortSongList(R.id.sortDate);
-        Collections.reverse(songList);
+        sortSongList(R.id.sortDate, false);
         if(currentSong == null && songList != null && songList.size() > 0) {
             currentSong = songList.get(0);
             setSongsByCurrentSong();

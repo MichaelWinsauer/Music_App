@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,21 +20,13 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
-public class Home extends AppCompatActivity implements OnNavigationItemSelectedListener {
+public class Home extends AppCompatActivity implements OnNavigationItemSelectedListener, Sort.BottomSheetListener {
 
     MusicManager musicManager;
     final int external_storage_permission_code = 1;
-    ImageButton imgButtonBrowse;
-    ImageButton imgButtonPlaylists;
-    ImageButton imgButtonSettings;
-    ImageButton imgButtonStats;
 
     DrawerLayout drawer;
     Toolbar toolbar;
@@ -43,21 +34,25 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     TextView txtArtist;
     ImageView imgCover;
 
+    NavigationView navigationView;
+    Bundle savedInstanceState;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.drawer_layout);
 
-
-        initialize(savedInstanceState);
-
+        this.savedInstanceState = savedInstanceState;
+        initialize();
         checkAppPermissions();
-        initializeListener();
-
+        loadFragment();
     }
 
-    private void initializeListener() {
-
+    private void loadFragment() {
+        if(savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
+            navigationView.setCheckedItem(R.id.nav_browse);
+        }
     }
 
     @Override
@@ -68,7 +63,8 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
                 break;
 
             case R.id.nav_sort:
-
+                Sort sort = new Sort();
+                sort.show(getSupportFragmentManager(), "sort");
                 break;
 
         }
@@ -96,7 +92,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
         super.onBackPressed();
     }
 
-    private void initialize(Bundle savedInstanceState) {
+    private void initialize() {
 
 
         musicManager = new MusicManager();
@@ -106,7 +102,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
         setSupportActionBar(toolbar);
 
         drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.app_name, R.string.app_name) {
             @Override
@@ -124,18 +120,11 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        if(savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
-            navigationView.setCheckedItem(R.id.nav_browse);
-        }
-
         View nav_header = navigationView.getHeaderView(0);
 
         txtTitle = nav_header.findViewById(R.id.txtDrawerTitle);
         txtArtist = nav_header.findViewById(R.id.txtDrawerArtist);
         imgCover = nav_header.findViewById(R.id.imgDrawerCover);
-
-        BottomNavigationView nav_bottom = findViewById(R.id.nav_bottom);
 
     }
 
@@ -163,5 +152,13 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
                 Toast.makeText(this, "Keine Berechtigungen", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    public void onSelection(Integer selection, Boolean ascending) {
+        musicManager.sortSongList(selection, ascending);
+
+        BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        browseFragment.refreshSongList();
     }
 }

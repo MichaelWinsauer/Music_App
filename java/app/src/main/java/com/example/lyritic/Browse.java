@@ -98,31 +98,6 @@ public class Browse extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        
-        if(menuItem == null) {
-            menuItem = menu.findItem(R.id.sortDate);
-        }
-
-        if(musicManager.getSongList().size() <= 0) {
-            return true;
-        }
-
-        if(menuItem.getItemId() != item.getItemId() ) {
-            songList = musicManager.sortSongList(item.getItemId());
-        } else {
-            Collections.reverse(songList);
-        }
-
-        llSongList.removeAllViews();
-        createSongs(llSongList);
-
-        menuItem = item;
-
-        return true;
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 

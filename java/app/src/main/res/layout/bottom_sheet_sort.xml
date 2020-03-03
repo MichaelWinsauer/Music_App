@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/colorPrimaryDark"
+    android:layout_gravity="center_horizontal"
+    android:gravity="center_horizontal"
+    >
+
+    <RadioGroup
+        android:id="@+id/sortGroupSelection"
+        android:layout_width="175dp"
+        android:layout_height="match_parent"
+        >
+
+        <RadioButton
+            android:id="@+id/sortName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:buttonTint="@color/colorAccent"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/sortName"
+            android:textAlignment="textStart"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <RadioButton
+            android:id="@+id/sortArtist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:buttonTint="@color/colorAccent"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/sortArtist"
+            android:textAlignment="textStart"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <RadioButton
+            android:id="@+id/sortDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:buttonTint="@color/colorAccent"
+            android:checked="true"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/sortDate"
+            android:textAlignment="textStart"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <RadioButton
+            android:id="@+id/sortAlbum"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:buttonTint="@color/colorAccent"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/sortAlbum"
+            android:textAlignment="textStart"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <RadioButton
+            android:id="@+id/sortLength"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:buttonTint="@color/colorAccent"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/sortLength"
+            android:textAlignment="textStart"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </RadioGroup>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_marginVertical="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="?android:attr/listDivider"
+        android:backgroundTint="@color/colorPrimary"
+        />
+
+    <RadioGroup
+        android:layout_width="175dp"
+        android:layout_height="match_parent" >
+
+        <RadioButton
+            android:id="@+id/sortAscending"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:buttonTint="@color/colorAccent"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/sortAscending"
+            android:textAlignment="textStart"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <RadioButton
+            android:id="@+id/sortDescending"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:buttonTint="@color/colorAccent"
+            android:checked="true"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/sortDescending"
+            android:textAlignment="textStart"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </RadioGroup>
+
+</LinearLayout>
