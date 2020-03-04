@@ -1,9 +1,6 @@
 package com.example.lyritic;
 
-import android.media.RemoteController;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.provider.ContactsContract;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,11 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.cmc.music.common.ID3WriteException;
-import org.cmc.music.metadata.IMusicMetadata;
-import org.cmc.music.metadata.MusicMetadata;
-import org.cmc.music.metadata.MusicMetadataSet;
-import org.cmc.music.myid3.MyID3;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -31,7 +23,6 @@ import org.jaudiotagger.tag.TagOptionSingleton;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 public class Details extends AppCompatActivity {
 
@@ -137,7 +128,7 @@ public class Details extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        musicManager.setSongList(ContentLoader.load(this));
+        musicManager.setSongList(ContentLoader.loadSongs(this));
 
     }
 }

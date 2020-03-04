@@ -4,11 +4,9 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -18,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -43,7 +40,6 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     NavigationView navigationView;
     SearchView searchView;
     Bundle savedInstanceState;
-
     Boolean isBrowse = true;
 
     @Override
@@ -78,7 +74,6 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
             public boolean onQueryTextSubmit(String query) {
                 BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 browseFragment.searchSong(query);
-
                 return false;
             }
 
@@ -86,7 +81,6 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
             public boolean onQueryTextChange(String newText) {
                 BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 browseFragment.searchSong(newText);
-
                 return false;
             }
         });
@@ -110,6 +104,8 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
                 break;
 
             case R.id.nav_playlists:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PlaylistsFragment()).commit();
+                Toast.makeText(this, Integer.toString(musicManager.getPlaylists().get(0).getSongList().size()), Toast.LENGTH_SHORT).show();
                 navigationView.setCheckedItem(R.id.nav_playlists);
                 isBrowse = false;
                 break;
@@ -192,15 +188,15 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
         View nav_header = navigationView.getHeaderView(0);
 
-        txtTitle = nav_header.findViewById(R.id.txtTitle);
-        txtArtist = nav_header.findViewById(R.id.txtArtist);
-        imgCover = nav_header.findViewById(R.id.imgCover);
+        txtTitle = nav_header.findViewById(R.id.txtDrawerTitle);
+        txtArtist = nav_header.findViewById(R.id.txtDrawerArtist);
+        imgCover = nav_header.findViewById(R.id.imgDrawerCover);
 
     }
 
     private void checkAppPermissions() {
         if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            musicManager.setSongList(ContentLoader.load(getBaseContext()));
+            musicManager.setSongList(ContentLoader.loadSongs(getBaseContext()));
             Stats.loadData();
         } else {
             requestPermission();
@@ -216,7 +212,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == external_storage_permission_code) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                musicManager.setSongList(ContentLoader.load(getBaseContext()));
+                musicManager.setSongList(ContentLoader.loadSongs(getBaseContext()));
                 Stats.loadData();
             } else {
                 Toast.makeText(this, "Keine Berechtigungen", Toast.LENGTH_SHORT).show();

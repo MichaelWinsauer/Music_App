@@ -19,8 +19,9 @@ class ContentLoader {
     private String path;
     private File file;
     private static List<Song> songs = new ArrayList<>();
+    private static List<Playlist> playlists = new ArrayList<>();
 
-    public static List<Song> load(Context context) {
+    public static List<Song> loadSongs(Context context) {
 
         songs.clear();
 
@@ -67,6 +68,37 @@ class ContentLoader {
         }
 
         return songs;
+    }
+
+    public static List<Playlist> loadPlaylists(Context context) {
+
+        playlists.clear();
+
+        Uri uri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+        String[] projection = {
+                MediaStore.Audio.Playlists.Members._ID,
+                MediaStore.Audio.Playlists.Members.CONTENT_DIRECTORY,
+                MediaStore.Audio.Playlists.Members.TITLE
+        };
+
+        Cursor c = context.getContentResolver().query(uri, projection, null, null, null);
+
+        if(c == null)
+            return null;
+
+        while(c.moveToNext()) {
+            Playlist p = new Playlist();
+            Song s = new Song();
+
+
+
+            p.getSongList().add(s);
+
+
+            playlists.add(p);
+        }
+
+        return playlists;
     }
 
     public String getPath() {

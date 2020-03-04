@@ -25,13 +25,15 @@ public class MusicManager {
     private List<Song> backup;
     private Boolean isShuffled = false;
     private List<Song> selectionBackup;
-    private List<Song> favorites = new ArrayList<>();
+    private List<Playlist> playlists;
     private Boolean isSelectionMode = false;
     private Boolean selectionModeChanged = false;
 
     public MusicManager() {
         songList = new ArrayList<>();
+        playlists = new ArrayList<>();
         player = new MediaPlayer();
+        playlists.add(new Playlist("Favorites"));
     }
 
     public void play() {
@@ -201,11 +203,11 @@ public class MusicManager {
     }
 
     public Boolean toggleFavorite(Song s) {
-        if(!favorites.contains(s)) {
-            favorites.add(s);
+        if(!playlists.get(0).getSongList().contains(s)) {
+            playlists.get(0).addSong(s);
             return true;
         } else {
-            favorites.remove(s);
+            playlists.get(0).removeSong(s);
             return false;
         }
     }
@@ -216,12 +218,16 @@ public class MusicManager {
     }
 
     public Song getSongById(int id) {
-
         List<Song> tmp = songList;
 
         if(isShuffled) {
             songList = backup;
         }
+
+        if(selectionBackup != null) {
+            songList = selectionBackup;
+        }
+
 
         if(songList != null && songList.size() > 0) {
             for (Song s : songList) {
@@ -231,7 +237,7 @@ public class MusicManager {
             }
         }
 
-        if(isShuffled) {
+        if(isShuffled || selectionBackup != null) {
             songList = tmp;
         }
 
@@ -410,5 +416,13 @@ public class MusicManager {
 
     public void setSelectionModeChanged(Boolean selectionModeChanged) {
         this.selectionModeChanged = selectionModeChanged;
+    }
+
+    public List<Playlist> getPlaylists() {
+        return playlists;
+    }
+
+    public void setPlaylists(List<Playlist> playlists) {
+        this.playlists = playlists;
     }
 }

@@ -175,7 +175,9 @@ public class BrowseFragment extends Fragment {
                 sbSongProgress.setProgress(musicManager.getPercentageProgress());
                 if(!musicManager.getPlayer().isPlaying()) {
                     callNextSong();
+                    refreshData();
                 }
+
 
                 sbHandler.postDelayed(this, 50);
             }

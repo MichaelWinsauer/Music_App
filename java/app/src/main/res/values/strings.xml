@@ -9,9 +9,11 @@
     <string name="others">Others</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="absteigend">Absteigend</string>
     <string name="aufsteigend">Aufsteigend</string>
     <string name="sortAscending">Aufsteigend</string>
     <string name="sortDescending">Absteigend</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
