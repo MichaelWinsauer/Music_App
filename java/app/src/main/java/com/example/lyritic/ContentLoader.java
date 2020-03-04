@@ -22,6 +22,8 @@ class ContentLoader {
 
     public static List<Song> load(Context context) {
 
+        songs.clear();
+
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = {
                 MediaStore.Audio.AudioColumns.TITLE,

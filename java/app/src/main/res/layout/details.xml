@@ -7,7 +7,7 @@
     android:background="@color/colorPrimaryDark">
 
     <EditText
-        android:id="@+id/txtDrawerTitle"
+        android:id="@+id/txtTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
@@ -22,7 +22,7 @@
         app:layout_constraintTop_toBottomOf="@+id/imgCover" />
 
     <EditText
-        android:id="@+id/txtDrawerArtist"
+        android:id="@+id/txtArtist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
@@ -67,7 +67,7 @@
         app:layout_constraintTop_toBottomOf="@+id/txtAlbum" />
 
     <ImageView
-        android:id="@+id/imgDrawerCover"
+        android:id="@+id/imgCover"
         android:layout_width="410dp"
         android:layout_height="410dp"
         android:alpha=".35"

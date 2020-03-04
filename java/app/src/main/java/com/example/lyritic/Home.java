@@ -4,9 +4,13 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,10 +18,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.MenuItemCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
@@ -35,7 +41,10 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     ImageView imgCover;
 
     NavigationView navigationView;
+    SearchView searchView;
     Bundle savedInstanceState;
+
+    Boolean isBrowse = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,10 +65,63 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.nav_search);
+        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setFocusable(true);
+        searchView.setIconified(false);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                browseFragment.searchSong(query);
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                browseFragment.searchSong(newText);
+
+                return false;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        searchView.requestFocus();
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId()) {
             case R.id.nav_browse:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
+                navigationView.setCheckedItem(R.id.nav_browse);
+                isBrowse = true;
+                break;
+
+            case R.id.nav_playlists:
+                navigationView.setCheckedItem(R.id.nav_playlists);
+                isBrowse = false;
+                break;
+
+            case R.id.nav_settings:
+                navigationView.setCheckedItem(R.id.nav_settings);
+                isBrowse = false;
+                break;
+
+            case R.id.nav_stats:
+                navigationView.setCheckedItem(R.id.nav_stats);
+                isBrowse = false;
                 break;
 
             case R.id.nav_sort:
@@ -68,7 +130,10 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
                 break;
 
         }
-        drawer.closeDrawer(GravityCompat.START);
+
+        if(item.getItemId() != R.id.nav_search) {
+            drawer.closeDrawer(GravityCompat.START);
+        }
 
         return false;
     }
@@ -85,9 +150,14 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
             BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             browseFragment.toggleSelection();
-
             return;
         }
+
+        if(searchView.hasFocus()) {
+            searchView.setQuery("", false);
+            searchView.setIconified(true);
+        }
+
 
         super.onBackPressed();
     }
@@ -122,9 +192,9 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
         View nav_header = navigationView.getHeaderView(0);
 
-        txtTitle = nav_header.findViewById(R.id.txtDrawerTitle);
-        txtArtist = nav_header.findViewById(R.id.txtDrawerArtist);
-        imgCover = nav_header.findViewById(R.id.imgDrawerCover);
+        txtTitle = nav_header.findViewById(R.id.txtTitle);
+        txtArtist = nav_header.findViewById(R.id.txtArtist);
+        imgCover = nav_header.findViewById(R.id.imgCover);
 
     }
 

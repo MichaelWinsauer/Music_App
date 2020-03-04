@@ -150,7 +150,7 @@ public class BrowseFragment extends Fragment {
         if(musicManager.getSongList() != null && musicManager.getSongList().size() > 0) {
             if(llSongList.getChildCount() < 1) {
 
-                createSongs(llSongList);
+                createSongs(llSongList, musicManager.getSongList());
             }
         } else {
             Toast.makeText(root.getContext(), "Keine Lieder im Musik-Ordner vorhanden!", Toast.LENGTH_SHORT).show();
@@ -305,11 +305,17 @@ public class BrowseFragment extends Fragment {
         });
     }
 
-    private void createSongs(final LinearLayout llSongList) {
+    private void createSongs(final LinearLayout llSongList, List<Song> songs) {
 
-        songList = musicManager.getSongList();
+        if(songs != null) {
+            songList = songs;
+        }
+
+        if(songList == null) {
+            songList = musicManager.getSongList();
+        }
+
         llSongList.removeAllViews();
-
         sbSongProgress.setPadding(0, 0, 0, 0);
 
         if(musicManager.getCurrentSong() == null) {
@@ -432,7 +438,6 @@ public class BrowseFragment extends Fragment {
             cs.applyTo(clSong);
 
             cbSelect.setHighlightColor(root.getContext().getColor(R.color.colorAccent));
-            cbSelect.setVisibility(View.INVISIBLE);
 
             cs.connect(cbSelect.getId(), ConstraintSet.LEFT , clSong.getId(), ConstraintSet.LEFT, Tools.dpToPx(20, getActivity()));
             cs.connect(cbSelect.getId(), ConstraintSet.TOP , clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(20, getActivity()));
@@ -446,6 +451,10 @@ public class BrowseFragment extends Fragment {
             cs.applyTo(clSong);
 
             llSongList.addView(clSong);
+        }
+
+        for(CheckBox cb : getAllCheckboxes()) {
+            cb.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -463,13 +472,35 @@ public class BrowseFragment extends Fragment {
         }
     }
 
+    public void searchSong(String query) {
+        List<Song> tmp = new ArrayList<>();
+
+        for(Song s : musicManager.getSongList()) {
+            String titleLowercase = s.getTitle().toLowerCase();
+            String artistLowercase = s.getInterpret().toLowerCase();
+            String queryLowercase = query.toLowerCase();
+
+            if(titleLowercase.contains(queryLowercase) || artistLowercase.contains(queryLowercase)) {
+                tmp.add(s);
+            }
+        }
+
+        createSongs(llSongList, tmp);
+    }
+
     private void refreshData() {
 
         if(musicManager.getSongList().size() <= 0) {
             return;
         }
+
+        if(musicManager.getCurrentSong() == null) {
+            musicManager.setCurrentSong(musicManager.getSongList().get(0));
+        }
+
         currentSong.setText(musicManager.getCurrentSong().getTitle());
         currentArtist.setText(musicManager.getCurrentSong().getInterpret());
+
         btnPlay.setBackgroundResource(R.drawable.playbutton_animation);
 
         for(int i = 0; i < llSongList.getChildCount(); i++) {
@@ -524,6 +555,6 @@ public class BrowseFragment extends Fragment {
     }
 
     public void refreshSongList() {
-        createSongs(llSongList);
+        createSongs(llSongList, null);
     }
 }

@@ -51,6 +51,7 @@ public class MusicManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         Stats.listend(currentSong);
         player.start();
     }
@@ -355,6 +356,7 @@ public class MusicManager {
         //changeSong(songList.get(0));
         currentSong = selection.get(0);
         setSongsByCurrentSong();
+
         play();
     }
 

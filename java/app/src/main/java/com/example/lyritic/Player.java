@@ -48,6 +48,9 @@ public class Player extends AppCompatActivity {
         if(musicManager.getCurrentSong() != null) {
             displayData();
         }
+        for(Song s : musicManager.getSongList()) {
+            System.out.println(s.getTitle());
+        }
     }
 
     private void initializeReferences() {

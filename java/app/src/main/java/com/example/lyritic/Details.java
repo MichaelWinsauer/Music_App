@@ -137,5 +137,7 @@ public class Details extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        musicManager.setSongList(ContentLoader.load(this));
+
     }
 }
