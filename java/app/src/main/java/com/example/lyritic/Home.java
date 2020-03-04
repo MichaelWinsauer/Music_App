@@ -72,15 +72,19 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                browseFragment.searchSong(query);
+                if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+                    BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                    browseFragment.searchSong(query);
+                }
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                browseFragment.searchSong(newText);
+                if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+                    BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                    browseFragment.searchSong(newText);
+                }
                 return false;
             }
         });
@@ -143,10 +147,11 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
         if(musicManager.getSelectionMode()) {
             musicManager.setSelectionMode(false);
-
-            BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-            browseFragment.toggleSelection();
-            return;
+            if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+                BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                browseFragment.toggleSelection();
+                return;
+            }
         }
 
         if(searchView.hasFocus()) {
@@ -224,7 +229,9 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     public void onSelection(Integer selection, Boolean ascending) {
         musicManager.sortSongList(selection, ascending);
 
-        BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        browseFragment.refreshSongList();
+        if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+            BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            browseFragment.refreshSongList();
+        }
     }
 }

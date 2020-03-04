@@ -7,12 +7,10 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 public class PlaylistsFragment extends Fragment {
 
     private MusicManager musicManager;
-    private LinearLayout llPlaylists;
 
     public PlaylistsFragment() {
         // Required empty public constructor
@@ -32,7 +30,6 @@ public class PlaylistsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.playlists, container, false);
-        llPlaylists = view.findViewById(R.id.llPlaylists);
         loadPlaylists();
 
         return view;
@@ -40,7 +37,7 @@ public class PlaylistsFragment extends Fragment {
 
     private void loadPlaylists() {
         for (Playlist p : musicManager.getPlaylists()) {
-            getFragmentManager().beginTransaction().add(llPlaylists.getId(), .newInstance(p), p.getId());
+            getFragmentManager().beginTransaction().add(R.id.llPlaylists, PlaylistItemFragment.newInstance(p.getId()), Integer.toString(p.getId())).commit();
         }
     }
 }
