@@ -3,14 +3,13 @@ package com.example.lyritic;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
 
 public class PlaylistItemFragment extends Fragment {
 
@@ -55,7 +54,9 @@ public class PlaylistItemFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.playlist_fragment, container, false);
+        View view = inflater.inflate(R.layout.playlist_fragment, container, false);
+
+        final Context c = getActivity();
 
         clPlaylistBase = view.findViewById(R.id.clPlaylistBase);
         txtPlaylistName = view.findViewById(R.id.txtPlaylistName);
@@ -68,10 +69,12 @@ public class PlaylistItemFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 DataManager.setPlaylist(playlist);
-                Intent intent = new Intent(view.getContext(), PlaylistActivity.class);
-                startActivity(intent);
+                Intent intent = new Intent(getActivity(), PlaylistActivity.class);
+                getActivity().startActivity(intent);
             }
         });
+
+
         return view;
     }
 }

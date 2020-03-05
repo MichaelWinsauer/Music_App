@@ -5,7 +5,6 @@ import android.os.Handler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,6 +27,7 @@ public class MusicManager {
     private List<Playlist> playlists;
     private Boolean isSelectionMode = false;
     private Boolean selectionModeChanged = false;
+    private List<SongListener> songListeners = new ArrayList<>();
 
     public MusicManager() {
         songList = new ArrayList<>();
@@ -332,6 +332,10 @@ public class MusicManager {
 
     public void setCurrentSong(Song currentSong) {
         this.currentSong = currentSong;
+
+        for(SongListener sl : songListeners) {
+            sl.songChanged(currentSong);
+        }
     }
 
     public MediaPlayer getPlayer() {
@@ -389,6 +393,14 @@ public class MusicManager {
             }
         }
         return null;
+    }
+
+    public void addSongListener(SongListener sl) {
+        songListeners.add(sl);
+    }
+
+    public interface SongListener {
+        public void songChanged(Song s);
     }
 
     public List<Song> getSongList() {

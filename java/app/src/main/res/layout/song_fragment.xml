@@ -24,6 +24,7 @@
         android:layout_marginTop="17dp"
         android:ellipsize="end"
         android:fontFamily="@font/montserrat"
+        android:lines="1"
         android:text="Songtitel"
         android:textColor="@color/colorPrimary"
         android:textSize="16sp"
@@ -32,11 +33,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/txtSongArtist"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:fontFamily="@font/montserrat"
+        android:lines="1"
         android:text="Artist"
         android:textColor="@color/colorSecondary"
         android:textSize="10sp"
@@ -55,20 +57,20 @@
 
     <ImageButton
         android:id="@+id/imgBtnFav"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="50dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="10dp"
         android:backgroundTint="@color/colorTransparent"
         app:layout_constraintBottom_toTopOf="@+id/viewDivider"
-        app:layout_constraintEnd_toStartOf="@+id/txtDuration"
+        app:layout_constraintEnd_toStartOf="@+id/txtSongDuration"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/heart_outline" />
 
     <TextView
         android:id="@+id/txtSongDuration"
-        android:layout_width="wrap_content"
+        android:layout_width="35dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="30dp"
+        android:layout_marginEnd="15dp"
         android:fontFamily="@font/montserrat"
         android:text="0:00"
         android:textColor="@color/colorPrimary"

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,6 +47,12 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.drawer_layout);
+
+//        if (!isTaskRoot()) {
+//
+//            finish();
+//            return;
+//        }
 
         this.savedInstanceState = savedInstanceState;
         initialize();
@@ -167,9 +172,12 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     private void initialize() {
 
-
+    if(DataManager.getMusicManager() == null) {
         musicManager = new MusicManager();
         DataManager.setMusicManager(musicManager);
+    } else {
+        musicManager = DataManager.getMusicManager();
+    }
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

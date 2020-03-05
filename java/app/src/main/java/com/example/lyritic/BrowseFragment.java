@@ -333,7 +333,6 @@ public class BrowseFragment extends Fragment {
             final TextView txtSongArtist = new TextView(root.getContext());
             final TextView txtSongDuration = new TextView(root.getContext());
             final View viewSeperator = new View(root.getContext());
-            final Button btnPlaySong = new Button(root.getContext());
             final CheckBox cbSelect = new CheckBox(root.getContext());
             final ImageButton imgBtnFav = new ImageButton(root.getContext());
 
@@ -343,7 +342,6 @@ public class BrowseFragment extends Fragment {
             txtSongDuration.setId(View.generateViewId());
             viewSeperator.setId(View.generateViewId());
             clSong.setId(View.generateViewId());
-            btnPlaySong.setId(View.generateViewId());
             cbSelect.setId(View.generateViewId());
             imgBtnFav.setId(View.generateViewId());
 
@@ -360,7 +358,6 @@ public class BrowseFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     if(!musicManager.getSelectionMode()) {
-                        togglePlayButton(btnPlaySong);
                         togglePlayButton((btnPlay));
                         TransitionManager.beginDelayedTransition(clSong);
                         musicManager.changeSong(musicManager.getSongById((Integer) view.getTag()));
