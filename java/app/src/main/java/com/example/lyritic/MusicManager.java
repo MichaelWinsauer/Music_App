@@ -212,6 +212,14 @@ public class MusicManager {
         }
     }
 
+    public Boolean getFav(Song s) {
+        if(playlists.get(0).getSongList().contains(s)) {
+           return true;
+        }
+        
+        return false;
+    }
+
 
     public int getPercentageProgress() {
         return (int)Math.round( (player.getCurrentPosition() / 1000) / currentSong.getDuration() * 100) ;
@@ -372,6 +380,15 @@ public class MusicManager {
             currentSong = songList.get(0);
             setSongsByCurrentSong();
         }
+    }
+
+    public Playlist getPlaylistById(int id) {
+        for(Playlist p : playlists) {
+            if(p.getId() == id) {
+                return p;
+            }
+        }
+        return null;
     }
 
     public List<Song> getSongList() {

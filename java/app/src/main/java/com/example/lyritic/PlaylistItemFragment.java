@@ -1,5 +1,7 @@
 package com.example.lyritic;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -53,7 +55,7 @@ public class PlaylistItemFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.playlist_fragment, container, false);
+        final View view = inflater.inflate(R.layout.playlist_fragment, container, false);
 
         clPlaylistBase = view.findViewById(R.id.clPlaylistBase);
         txtPlaylistName = view.findViewById(R.id.txtPlaylistName);
@@ -65,7 +67,9 @@ public class PlaylistItemFragment extends Fragment {
         clPlaylistBase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                DataManager.setPlaylist(playlist);
+                Intent intent = new Intent(view.getContext(), PlaylistActivity.class);
+                startActivity(intent);
             }
         });
         return view;

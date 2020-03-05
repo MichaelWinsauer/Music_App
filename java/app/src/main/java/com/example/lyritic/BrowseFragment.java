@@ -3,12 +3,11 @@ package com.example.lyritic;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
@@ -22,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -34,7 +32,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -446,7 +443,11 @@ public class BrowseFragment extends Fragment {
             cs.applyTo(clSong);
 
             imgBtnFav.setBackgroundColor(root.getContext().getColor(R.color.colorTransparent));
-            imgBtnFav.setImageResource(R.drawable.heart_outline);
+            if(!musicManager.getFav(musicManager.getSongById((Integer)clSong.getTag()))) {
+                imgBtnFav.setImageResource(R.drawable.heart_outline);
+            } else {
+                imgBtnFav.setImageResource(R.drawable.heart);
+            }
 
             cs.connect(imgBtnFav.getId(), ConstraintSet.RIGHT,  txtSongDuration.getId(), ConstraintSet.LEFT, Tools.dpToPx(20, getActivity()));
             cs.connect(imgBtnFav.getId(), ConstraintSet.TOP,  clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(15, getActivity()));
@@ -559,4 +560,5 @@ public class BrowseFragment extends Fragment {
     public void refreshSongList() {
         createSongs(llSongList, null);
     }
+
 }
