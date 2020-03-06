@@ -1,5 +1,6 @@
 package com.example.lyritic;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +26,7 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
     private ImageButton imgBtnFav;
     private ImageView imgCover;
     private ConstraintLayout clBase;
+    private SongFragmentListener songFragmentListener;
 
     public SongFragment() {
         // Required empty public constructor
@@ -69,9 +71,14 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
     }
 
     private void loadSongData() {
+
+        if(song == null) {
+            return;
+        }
+
         txtTitle.setText(song.getTitle());
         txtArtist.setText(song.getInterpret());
-        txtDuration.setText(song.getFormatDuration());
+        txtDuration.setText(song.durationToString((long)song.getDuration()));
         imgCover.setImageBitmap(song.getCover());
 
         if(musicManager.getCurrentSong().getId() == song.getId()) {
@@ -95,13 +102,39 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
                 } else {
                     imgBtnFav.setImageResource(R.drawable.heart_outline);
                 }
+                songFragmentListener.onFavClicked(v, song);
             }
         });
 
         clBase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                musicManager.changeSong(song);
+                if(!musicManager.getSelectionMode()) {
+                    musicManager.changeSong(song);
+                    songFragmentListener.onSongClicked(v, song);
+                    return;
+                }
+
+                //TODO: Add to Playlist
+
+                if(!song.getSelected()) {
+                    song.setSelected(true);
+                    clBase.setBackgroundColor(getActivity().getColor(R.color.colorPrimaryDark));
+                } else {
+                    song.setSelected(false);
+                    clBase.setBackgroundColor(getActivity().getColor(R.color.colorSecondaryDark));
+                }
+
+                songFragmentListener.onSongSelected(v, song);
+            }
+        });
+
+        clBase.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                songFragmentListener.onSongHold(v, song);
+
+                return false;
             }
         });
     }
@@ -113,5 +146,20 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
         } else {
             clBase.setBackgroundColor(getActivity().getColor(R.color.colorSecondaryDark));
         }
+    }
+
+    public interface SongFragmentListener {
+        public void onSongClicked(View v, Song s);
+        public void onFavClicked(View v, Song s);
+        public void onSongHold(View v, Song s);
+        public void onSongSelected(View v, Song s);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+
+        songFragmentListener = (SongFragmentListener) context;
+
+        super.onAttach(context);
     }
 }

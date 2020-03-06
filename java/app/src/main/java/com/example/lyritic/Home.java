@@ -27,7 +27,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 
-public class Home extends AppCompatActivity implements OnNavigationItemSelectedListener, Sort.BottomSheetListener {
+public class Home extends AppCompatActivity implements OnNavigationItemSelectedListener, Sort.BottomSheetListener, SongFragment.SongFragmentListener {
 
     MusicManager musicManager;
     final int external_storage_permission_code = 1;
@@ -47,6 +47,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.drawer_layout);
+        this.savedInstanceState = savedInstanceState;
 
 //        if (!isTaskRoot()) {
 //
@@ -54,7 +55,6 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 //            return;
 //        }
 
-        this.savedInstanceState = savedInstanceState;
         initialize();
         checkAppPermissions();
         loadFragment();
@@ -212,6 +212,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     private void checkAppPermissions() {
         if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             musicManager.setSongList(ContentLoader.loadSongs(getBaseContext()));
+            DataManager.setMusicManager(musicManager);
             Stats.loadData();
         } else {
             requestPermission();
@@ -221,13 +222,14 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     private void requestPermission() {
         if(!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
         }
-        ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, external_storage_permission_code);
+        ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET}, external_storage_permission_code);
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == external_storage_permission_code) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 musicManager.setSongList(ContentLoader.loadSongs(getBaseContext()));
+                DataManager.setMusicManager(musicManager);
                 Stats.loadData();
             } else {
                 Toast.makeText(this, "Keine Berechtigungen", Toast.LENGTH_SHORT).show();
@@ -242,6 +244,32 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
         if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
             BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             browseFragment.refreshSongList();
+        }
+    }
+
+    @Override
+    public void onSongClicked(View v, Song s) {
+        if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+            BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            browseFragment.setSongData(s);
+        }
+    }
+
+    @Override
+    public void onFavClicked(View v, Song s) {
+
+    }
+
+    @Override
+    public void onSongHold(View v, Song s) {
+        musicManager.setSelectionMode(true);
+    }
+
+    @Override
+    public void onSongSelected(View v, Song s) {
+        if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+            BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            browseFragment.toggleSelection();
         }
     }
 }

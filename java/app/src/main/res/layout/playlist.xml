@@ -22,10 +22,17 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <LinearLayout
-        android:id="@+id/llSongList"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:isScrollContainer="true"
-        android:orientation="vertical"></LinearLayout>
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/llSongList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:isScrollContainer="false"
+            android:nestedScrollingEnabled="false"
+            android:orientation="vertical"></LinearLayout>
+    </ScrollView>
+
 </LinearLayout>
