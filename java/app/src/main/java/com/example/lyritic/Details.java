@@ -1,5 +1,6 @@
 package com.example.lyritic;
 
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -67,7 +68,11 @@ public class Details extends AppCompatActivity {
         txtArtist.setText(musicManager.getCurrentSong().getInterpret());
         txtAlbum.setText(musicManager.getCurrentSong().getAlbum());
         txtGenre.setText(musicManager.getCurrentSong().getGenre());
-        imgCover.setImageBitmap(musicManager.getCurrentSong().getCover());
+        if(musicManager.getCurrentSong().getCover() != null) {
+            imgCover.setImageBitmap(Tools.cropBitmapToSquare(musicManager.getCurrentSong().getCover()));
+        } else {
+            imgCover.setImageBitmap(Tools.cropBitmapToSquare(BitmapFactory.decodeResource(getResources(), R.drawable.missing_img)));
+        }
         txtSongTitleCover.setText(musicManager.getCurrentSong().getTitle());
         txtSongArtistCover.setText(musicManager.getCurrentSong().getInterpret());
     }

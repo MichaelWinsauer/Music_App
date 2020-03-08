@@ -70,36 +70,36 @@ class ContentLoader {
         return songs;
     }
 
-    public static List<Playlist> loadPlaylists(Context context) {
-
-        playlists.clear();
-
-        Uri uri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
-        String[] projection = {
-                MediaStore.Audio.Playlists.Members._ID,
-                MediaStore.Audio.Playlists.Members.CONTENT_DIRECTORY,
-                MediaStore.Audio.Playlists.Members.TITLE
-        };
-
-        Cursor c = context.getContentResolver().query(uri, projection, null, null, null);
-
-        if(c == null)
-            return null;
-
-        while(c.moveToNext()) {
-            Playlist p = new Playlist();
-            Song s = new Song();
-
-
-
-            p.getSongList().add(s);
-
-
-            playlists.add(p);
-        }
-
-        return playlists;
-    }
+//    public static List<Playlist> loadPlaylists(Context context) {
+//
+//        playlists.clear();
+//
+//        Uri uri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+//        String[] projection = {
+//                MediaStore.Audio.Playlists.Members._ID,
+//                MediaStore.Audio.Playlists.Members.CONTENT_DIRECTORY,
+//                MediaStore.Audio.Playlists.Members.TITLE
+//        };
+//
+//        Cursor c = context.getContentResolver().query(uri, projection, null, null, null);
+//
+//        if(c == null)
+//            return null;
+//
+//        while(c.moveToNext()) {
+//            Playlist p = new Playlist();
+//            Song s = new Song();
+//
+//
+//
+//            p.getSongList().add(s);
+//
+//
+//            playlists.add(p);
+//        }
+//
+//        return playlists;
+//    }
 
     public String getPath() {
         return path;

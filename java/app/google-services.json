@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "472577788669",
+    "firebase_url": "https://lyritic-c6f32.firebaseio.com",
+    "project_id": "lyritic-c6f32",
+    "storage_bucket": "lyritic-c6f32.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:472577788669:android:4e852f4eee620571ebcc94",
+        "android_client_info": {
+          "package_name": "com.example.lyritic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "472577788669-9pelm8ikt2ika68m8sp8f94cpsmtdmco.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lyritic",
+            "certificate_hash": "f911fd9d7acf1a6e5858603976b1a3a6dc08b8c3"
+          }
+        },
+        {
+          "client_id": "472577788669-l5bufsq1hft9adijhmhe59r7j05j7jdq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIFr5s7x77Gexl45JrtAq61hBMFhwQKIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "472577788669-l5bufsq1hft9adijhmhe59r7j05j7jdq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

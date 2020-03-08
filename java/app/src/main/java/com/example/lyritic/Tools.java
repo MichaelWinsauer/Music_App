@@ -7,7 +7,16 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.os.Environment;
 import android.util.TypedValue;
+import android.widget.Toast;
+
+import java.io.File;
+
+import it.sauronsoftware.jave.AudioAttributes;
+import it.sauronsoftware.jave.Encoder;
+import it.sauronsoftware.jave.EncoderException;
+import it.sauronsoftware.jave.EncodingAttributes;
 
 public class Tools {
     public static int dpToPx(float dp, Activity activity) {
@@ -22,6 +31,10 @@ public class Tools {
 
         if(image == null || mask == null) {
             return null;
+        }
+
+        if(image.getWidth() != image.getHeight()) {
+            image = cropBitmapToSquare(image);
         }
 
         result = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
@@ -42,11 +55,64 @@ public class Tools {
         return result;
     }
 
+    public static Bitmap cropBitmapToSquare(Bitmap src) {
+
+        if(src == null) {
+            return null;
+        }
+
+        Bitmap result = src;
+
+        if(src.getWidth() >= src.getHeight()) {
+            result = Bitmap.createBitmap(
+                    src,
+                    src.getWidth()/2 - src.getHeight()/2,
+                    0,
+                    src.getHeight(),
+                    src.getHeight()
+            );
+
+        } else if (src.getWidth() < src.getHeight()) {
+            result = Bitmap.createBitmap(
+                    src,
+                    0,
+                    src.getHeight()/2 - src.getWidth()/2,
+                    src.getWidth(),
+                    src.getWidth()
+            );
+        }
+
+        return result;
+    }
+
     @SuppressLint("DefaultLocale")
     public static String millisToMinSecFormat(long millis) {
         long min = (millis % 3600) / 60;
         long sec = millis % 60;
 
         return String.format("%02d:%02d",  min, sec);
+    }
+
+    public static void convertVideoToAudio(File video, String title, String artist) {
+        File target = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC) + "/" + artist + " - " + title + ".mp3");
+
+        AudioAttributes audio = new AudioAttributes();
+        audio.setCodec("libmp3lame");
+        audio.setBitRate(128000);
+        audio.setChannels(2);
+        audio.setSamplingRate(44100);
+
+        EncodingAttributes attrs = new EncodingAttributes();
+        attrs.setFormat("mp3");
+        attrs.setAudioAttributes(audio);
+
+        Encoder encoder = new Encoder();
+
+
+        try {
+            encoder.encode(video, target, attrs);
+        } catch (EncoderException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,6 +1,8 @@
 package com.example.lyritic;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +29,7 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
     private ImageView imgCover;
     private ConstraintLayout clBase;
     private SongFragmentListener songFragmentListener;
+    private Activity activity;
 
     public SongFragment() {
         // Required empty public constructor
@@ -79,12 +82,17 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
         txtTitle.setText(song.getTitle());
         txtArtist.setText(song.getInterpret());
         txtDuration.setText(song.durationToString((long)song.getDuration()));
-        imgCover.setImageBitmap(song.getCover());
+        if(song.getCover() != null) {
+            imgCover.setImageBitmap(Tools.cropBitmapToSquare(song.getCover()));
+        } else {
+            imgCover.setImageBitmap(Tools.cropBitmapToSquare(BitmapFactory.decodeResource(getResources(), R.drawable.missing_img)));
+        }
+        clBase.setTag(song.getId());
 
         if(musicManager.getCurrentSong().getId() == song.getId()) {
-            clBase.setBackgroundColor(getActivity().getColor(R.color.colorAccent));
+            clBase.setBackgroundColor(activity.getColor(R.color.colorAccent));
         } else {
-            clBase.setBackgroundColor(getActivity().getColor(R.color.colorSecondaryDark));
+            clBase.setBackgroundColor(activity.getColor(R.color.colorSecondaryDark));
         }
 
         if(musicManager.getFav(musicManager.getSongById(song.getId()))) {
@@ -119,10 +127,10 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
 
                 if(!song.getSelected()) {
                     song.setSelected(true);
-                    clBase.setBackgroundColor(getActivity().getColor(R.color.colorPrimaryDark));
+                    clBase.setBackgroundColor(activity.getColor(R.color.colorPrimaryDark));
                 } else {
                     song.setSelected(false);
-                    clBase.setBackgroundColor(getActivity().getColor(R.color.colorSecondaryDark));
+                    clBase.setBackgroundColor(activity.getColor(R.color.colorSecondaryDark));
                 }
 
                 songFragmentListener.onSongSelected(v, song);
@@ -142,9 +150,9 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
     @Override
     public void songChanged(Song s) {
         if(s.getId() == song.getId()) {
-            clBase.setBackgroundColor(getActivity().getColor(R.color.colorAccent));
+            clBase.setBackgroundColor(activity.getColor(R.color.colorAccent));
         } else {
-            clBase.setBackgroundColor(getActivity().getColor(R.color.colorSecondaryDark));
+            clBase.setBackgroundColor(activity.getColor(R.color.colorSecondaryDark));
         }
     }
 
@@ -159,7 +167,7 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
     public void onAttach(Context context) {
 
         songFragmentListener = (SongFragmentListener) context;
-
+        activity = (Activity) context;
         super.onAttach(context);
     }
 }

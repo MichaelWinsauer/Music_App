@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/csBase"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,7 +11,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/csHeader"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="200dp"
         android:backgroundTint="@color/colorSecondaryDark">
 
         <ImageView
@@ -20,6 +21,61 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/viewDivider"
+            android:layout_width="409dp"
+            android:layout_height="2dp"
+            android:layout_marginBottom="50dp"
+            android:background="@color/colorSecondaryDark"
+            app:layout_constraintBottom_toBottomOf="@+id/imgPlaylistCover"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageButton
+            android:id="@+id/imgBtnPlaylistPlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="50dp"
+            android:background="@color/colorTransparent"
+            app:layout_constraintBottom_toBottomOf="@+id/imgPlaylistCover"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/viewDivider"
+            app:srcCompat="@drawable/playbutton_animation" />
+
+        <TextView
+            android:id="@+id/txtPlaylistName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:fontFamily="@font/montserrat"
+            android:text="Playlistname"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/imgPlaylistCover"
+            app:layout_constraintTop_toBottomOf="@+id/viewDivider" />
+
+        <ImageButton
+            android:id="@+id/imgBtnPlaylistShuffle"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="25dp"
+            android:background="@color/colorTransparent"
+            app:layout_constraintBottom_toTopOf="@+id/viewDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/shuffle" />
+
+        <ImageButton
+            android:id="@+id/imgBtnPlaylistRepeat"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="25dp"
+            android:background="@color/colorTransparent"
+            app:layout_constraintBottom_toTopOf="@+id/viewDivider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/repeat" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ScrollView

@@ -118,30 +118,40 @@
 
     <ImageView
         android:id="@+id/ivCover"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/ivCover15x1"
-        android:layout_width="250dp"
-        android:layout_height="375dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+         />
 
     <ImageButton
         android:id="@+id/imgBtnDetails"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="10dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
         android:background="@color/colorPrimary"
         android:tint="@color/colorPrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/ivCover"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/hamburger_menu" />
+
+    <com.marcinmoskala.arcseekbar.ArcSeekBar
+        android:id="@+id/asbSongProgression"
+        android:layout_width="330dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="250dp"
+        android:padding="15dp"
+        android:rotation="180"
+        app:layout_constraintEnd_toEndOf="@+id/ivCover"
+        app:layout_constraintStart_toStartOf="@+id/ivCover"
+        app:layout_constraintTop_toTopOf="parent"
+        app:progressBackgroundColor="@color/colorSecondary"
+        app:progressBackgroundWidth="3dp"
+        app:progressColor="@color/colorAccent"
+        app:progressWidth="5dp"
+        app:roundEdges="true"
+        app:thumb="@color/colorAccent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

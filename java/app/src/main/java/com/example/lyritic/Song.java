@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory;
 import java.io.Serializable;
 import java.util.Date;
 
-public class Song {
+public class Song implements Serializable {
 
     private static int count;
 

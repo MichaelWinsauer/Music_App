@@ -3,12 +3,9 @@ package com.example.lyritic;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.ContactsContract;
-import android.text.TextUtils;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
@@ -19,17 +16,18 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,12 +55,14 @@ public class BrowseFragment extends Fragment {
     private LinearLayout llSelection;
     private ImageButton imgBtnPlay;
     private ImageButton imgBtnAdd;
+    private FloatingActionButton fabBackToTop;
+    private ScrollView svSongList;
 
     private float oldX;
     private float oldY;
     private Boolean isHoldingPlay = false;
     public BrowseFragment() {
-        // Required empty public constructor
+
     }
 
     public static BrowseFragment newInstance(String param1, String param2) {
@@ -90,20 +90,16 @@ public class BrowseFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-//        refreshData();
+
     }
 
     public void toggleSelection() {
         if(musicManager.getSelectionMode()) {
             llSelection.setVisibility(View.VISIBLE);
-//            for(CheckBox c : getAllCheckboxes()) {
-//                c.setVisibility(View.VISIBLE);
-//            }
+
         } else {
             llSelection.setVisibility(View.GONE);
-//            for(CheckBox c : getAllCheckboxes()) {
-//                c.setVisibility(View.INVISIBLE);
-//            }
+
         }
     }
 
@@ -130,6 +126,8 @@ public class BrowseFragment extends Fragment {
         llSelection = root.findViewById(R.id.llSelection);
         imgBtnPlay = root.findViewById(R.id.imgBtnPlaySelection);
         imgBtnAdd = root.findViewById(R.id.imgBtnAddSelection);
+        fabBackToTop = root.findViewById(R.id.fabBackToTop);
+        svSongList = root.findViewById(R.id.svSongList);
     }
 
     private void prepareMusicManager() {
@@ -141,6 +139,7 @@ public class BrowseFragment extends Fragment {
             Toast.makeText(root.getContext(), "Keine Lieder im Musik-Ordner vorhanden!", Toast.LENGTH_SHORT).show();
         }
         toggleSelection();
+        fabBackToTop.hide();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -162,11 +161,10 @@ public class BrowseFragment extends Fragment {
                     callNextSong();
 //                    refreshData();
                 }
-
-
-                sbHandler.postDelayed(this, 50);
             }
         };
+
+        setSeekBarData();
 
         sbSongProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -231,11 +229,11 @@ public class BrowseFragment extends Fragment {
                         //LEFT - RIGHT
                         if(oldX > event.getX()) {
                             musicManager.backSong();
-//                            refreshData();
+                            refreshData();
                             Toast.makeText(root.getContext(), "Back", Toast.LENGTH_SHORT).show();
                         } else {
                             musicManager.skipSong();
-//                            refreshData();
+                            refreshData();
                             Toast.makeText(root.getContext(), "Skip", Toast.LENGTH_SHORT).show();
                         }
                     } else {
@@ -264,17 +262,13 @@ public class BrowseFragment extends Fragment {
             }
         });
 
-        musicManager.setSeekBarData(sbHandler, sbUpdater);
-
         imgBtnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 List<Song> tmp = new ArrayList<>();
-                for(CheckBox c : getAllCheckboxes() ) {
 
-                    if(c.isChecked()) {
-                        Song s = new Song();
-                        s = musicManager.getSongById((Integer) ((ConstraintLayout)c.getParent()).getTag());
+                for(Song s : musicManager.getSongList()) {
+                    if(s.getSelected()) {
                         tmp.add(s);
                     }
                 }
@@ -282,13 +276,64 @@ public class BrowseFragment extends Fragment {
                 if(tmp.size() > 0) {
                     musicManager.setSelectionMode(false);
                     musicManager.setSongSelection(tmp);
+                    musicManager.deselectAllSongs();
                     toggleSelection();
-//                    refreshData();
+                    refreshData();
                 } else {
-                    Toast.makeText(root.getContext(), "Keine Lieder ausgewählt", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(root.getContext(), "No songs selected!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+        imgBtnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Song> tmp = new ArrayList<>();
+
+                for(Song s : musicManager.getSongList()) {
+                    if(s.getSelected()) {
+                        tmp.add(s);
+                    }
+                }
+
+                if(tmp.size() > 0) {
+                    musicManager.setSelectionMode(false);
+                    musicManager.deselectAllSongs();
+                    toggleSelection();
+                    refreshData();
+
+                    musicManager.setTempSongs(tmp);
+
+                    new AddSongsToPlaylistDialogFragment().show(getActivity().getSupportFragmentManager(), "AddSongsToPlaylist");
+
+                } else {
+                    Toast.makeText(root.getContext(), "No songs selected!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        fabBackToTop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                svSongList.smoothScrollTo(0, 0);
+            }
+        });
+
+        svSongList.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @SuppressLint("RestrictedApi")
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                if(scrollY < 1500) {
+                    fabBackToTop.hide();
+                } else {
+                    fabBackToTop.show();
+                }
+            }
+        });
+    }
+
+    public void setSeekBarData() {
+        musicManager.setSeekBarData(sbHandler, sbUpdater);
     }
 
     private void createSongs(final LinearLayout llSongList, List<Song> songs) {
@@ -313,136 +358,6 @@ public class BrowseFragment extends Fragment {
             currentSong.setText(musicManager.getCurrentSong().getTitle());
             currentArtist.setText(musicManager.getCurrentSong().getInterpret());
         }
-
-//        for(Song s : songList) {
-//            final ConstraintLayout clSong = new ConstraintLayout(root.getContext());
-//            final TextView txtSongTitle = new TextView(root.getContext());
-//            final TextView txtSongArtist = new TextView(root.getContext());
-//            final TextView txtSongDuration = new TextView(root.getContext());
-//            final View viewSeperator = new View(root.getContext());
-//            final CheckBox cbSelect = new CheckBox(root.getContext());
-//            final ImageButton imgBtnFav = new ImageButton(root.getContext());
-//
-//            clSong.setTag(s.getId());
-//            txtSongTitle.setId(View.generateViewId());
-//            txtSongArtist.setId(View.generateViewId());
-//            txtSongDuration.setId(View.generateViewId());
-//            viewSeperator.setId(View.generateViewId());
-//            clSong.setId(View.generateViewId());
-//            cbSelect.setId(View.generateViewId());
-//            imgBtnFav.setId(View.generateViewId());
-//
-//            new ConstraintSet().constrainHeight(clSong.getId(), Tools.dpToPx(100, getActivity()));
-//            clSong.setBackgroundColor(root.getContext().getColor(R.color.colorSecondaryDark));
-//            clSong.addView(txtSongTitle, 0);
-//            clSong.addView(txtSongArtist, 1);
-//            clSong.addView(txtSongDuration, 2);
-//            clSong.addView(viewSeperator, 3);
-//            clSong.addView(cbSelect, 4);
-//            clSong.addView(imgBtnFav, 5);
-//
-//            clSong.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    if(!musicManager.getSelectionMode()) {
-//                        togglePlayButton((btnPlay));
-//                        TransitionManager.beginDelayedTransition(clSong);
-//                        musicManager.changeSong(musicManager.getSongById((Integer) view.getTag()));
-//
-//                        refreshData();
-//                    } else {
-//                        cbSelect.toggle();
-//
-////                        musicManager.getSongById((Integer)clSong.getTag()).toggleSelection();
-//                    }
-//                }
-//            });
-//
-//            clSong.setOnLongClickListener(new View.OnLongClickListener() {
-//                @Override
-//                public boolean onLongClick(View v) {
-//                    musicManager.setSelectionMode(true);
-//
-//                    toggleSelection();
-//
-//
-//                    return false;
-//                }
-//            });
-//
-//            imgBtnFav.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if(musicManager.toggleFavorite(musicManager.getSongById((Integer)clSong.getTag()))) {
-//                        imgBtnFav.setImageResource(R.drawable.heart);
-//                    } else {
-//                        imgBtnFav.setImageResource(R.drawable.heart_outline);
-//                    }
-//                }
-//            });
-//
-//            cs.clone(clSong);
-//
-//            txtSongTitle.setText(s.getTitle());
-//            txtSongTitle.setTextColor(root.getContext().getColor(R.color.colorPrimary));
-//            txtSongTitle.setTextSize(14);
-//            txtSongTitle.setWidth(Tools.dpToPx(215, getActivity()));
-//            txtSongTitle.setMaxLines(1);
-//            txtSongTitle.setEllipsize(TextUtils.TruncateAt.END);
-//            txtSongTitle.setTypeface(txtSongTitle.getTypeface(), Typeface.BOLD);
-//
-//            cs.connect(txtSongTitle.getId(), ConstraintSet.TOP, clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(15, getActivity()));
-//            cs.connect(txtSongTitle.getId(), ConstraintSet.LEFT, clSong.getId(), ConstraintSet.LEFT, Tools.dpToPx(75, getActivity()));
-//            cs.applyTo(clSong);
-//
-//            txtSongArtist.setText(s.getInterpret());
-//            txtSongArtist.setTextColor(root.getContext().getColor(R.color.colorPrimary));
-//            txtSongArtist.setTextSize(10);
-//            txtSongArtist.setTypeface(txtSongArtist.getTypeface(), Typeface.ITALIC);
-//
-//            cs.connect(txtSongArtist.getId(), ConstraintSet.TOP, txtSongTitle.getId(), ConstraintSet.BOTTOM, Tools.dpToPx(0, getActivity()));
-//            cs.connect(txtSongArtist.getId(), ConstraintSet.LEFT, txtSongTitle.getId(), ConstraintSet.LEFT, Tools.dpToPx(0, getActivity()));
-//            cs.connect(txtSongArtist.getId(), ConstraintSet.BOTTOM, clSong.getId(), ConstraintSet.BOTTOM, Tools.dpToPx(20, getActivity()));
-//            cs.applyTo(clSong);
-//
-//            txtSongDuration.setText(s.durationToString(Math.round(s.getDuration())));
-//            txtSongDuration.setTextColor(root.getContext().getColor(R.color.colorAccent));
-//            txtSongDuration.setTextSize(10);
-//
-//            cs.connect(txtSongDuration.getId(), ConstraintSet.TOP, clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(25, getActivity()));
-//            cs.connect(txtSongDuration.getId(), ConstraintSet.RIGHT, clSong.getId(), ConstraintSet.RIGHT, Tools.dpToPx(20, getActivity()));
-//            cs.applyTo(clSong);
-//
-//            viewSeperator.setBackground(root.getContext().getDrawable(R.drawable.song_seperator));
-//
-//            cs.connect(viewSeperator.getId(), ConstraintSet.BOTTOM, clSong.getId(), ConstraintSet.BOTTOM, 0);
-//            cs.connect(viewSeperator.getId(), ConstraintSet.RIGHT, clSong.getId(), ConstraintSet.RIGHT, 0);
-//            cs.connect(viewSeperator.getId(), ConstraintSet.LEFT, txtSongTitle.getId(), ConstraintSet.LEFT, Tools.dpToPx(70, getActivity()));
-//            cs.applyTo(clSong);
-//
-//            cbSelect.setHighlightColor(root.getContext().getColor(R.color.colorAccent));
-//
-//            cs.connect(cbSelect.getId(), ConstraintSet.LEFT , clSong.getId(), ConstraintSet.LEFT, Tools.dpToPx(20, getActivity()));
-//            cs.connect(cbSelect.getId(), ConstraintSet.TOP , clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(20, getActivity()));
-//            cs.applyTo(clSong);
-//
-//            imgBtnFav.setBackgroundColor(root.getContext().getColor(R.color.colorTransparent));
-//            if(!musicManager.getFav(musicManager.getSongById((Integer)clSong.getTag()))) {
-//                imgBtnFav.setImageResource(R.drawable.heart_outline);
-//            } else {
-//                imgBtnFav.setImageResource(R.drawable.heart);
-//            }
-//
-//            cs.connect(imgBtnFav.getId(), ConstraintSet.RIGHT,  txtSongDuration.getId(), ConstraintSet.LEFT, Tools.dpToPx(20, getActivity()));
-//            cs.connect(imgBtnFav.getId(), ConstraintSet.TOP,  clSong.getId(), ConstraintSet.TOP, Tools.dpToPx(15, getActivity()));
-//            cs.applyTo(clSong);
-//
-//            llSongList.addView(clSong);
-//        }
-
-//        for(CheckBox cb : getAllCheckboxes()) {
-//            cb.setVisibility(View.INVISIBLE);
-//        }
 
         for(Song s : songList) {
             getFragmentManager().beginTransaction().add(llSongList.getId(), SongFragment.newInstance(s.getId()), Integer.toString(s.getId())).commit();
@@ -479,39 +394,19 @@ public class BrowseFragment extends Fragment {
         createSongs(llSongList, tmp);
     }
 
-//    private void refreshData() {
-//
-//        if(musicManager.getSongList().size() <= 0) {
-//            return;
-//        }
-//
-//        if(musicManager.getCurrentSong() == null) {
-//            musicManager.setCurrentSong(musicManager.getSongList().get(0));
-//        }
-//
-//        currentSong.setText(musicManager.getCurrentSong().getTitle());
-//        currentArtist.setText(musicManager.getCurrentSong().getInterpret());
-//
-//        btnPlay.setBackgroundResource(R.drawable.playbutton_animation);
-//
-//        for(int i = 0; i < llSongList.getChildCount(); i++) {
-//            if((Integer)llSongList.getChildAt(i).getTag() == musicManager.getCurrentSong().getId()) {
-//                llSongList.getChildAt(i).setBackgroundColor(root.getContext().getColor(R.color.colorAccent));
-//                ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(0)).setTextColor(root.getContext().getColor(R.color.colorPrimaryDark));
-//                ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(1)).setTextColor(root.getContext().getColor(R.color.colorPrimaryDark));
-//                ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(2)).setTextColor(root.getContext().getColor(R.color.colorPrimaryDark));
-//                ((ImageButton)getChildren((ViewGroup)llSongList.getChildAt(i)).get(5)).setColorFilter(ContextCompat.getColor(context, R.color.colorPrimaryDark), android.graphics.PorterDuff.Mode.SRC_IN);
-//
-//
-//            } else {
-//                llSongList.getChildAt(i).setBackgroundColor(root.getContext().getColor(R.color.colorSecondaryDark));
-//                ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(0)).setTextColor(root.getContext().getColor(R.color.colorPrimary));
-//                ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(1)).setTextColor(root.getContext().getColor(R.color.colorPrimary));
-//                ((TextView)getChildren((ViewGroup)llSongList.getChildAt(i)).get(2)).setTextColor(root.getContext().getColor(R.color.colorAccent));
-//                ((ImageButton)getChildren((ViewGroup)llSongList.getChildAt(i)).get(5)).setColorFilter(ContextCompat.getColor(context, R.color.colorPrimary), android.graphics.PorterDuff.Mode.SRC_IN);
-//            }
-//        }
-//    }
+    public void refreshData() {
+
+        currentSong.setText(musicManager.getCurrentSong().getTitle());
+        currentArtist.setText(musicManager.getCurrentSong().getInterpret());
+
+        for(int i = 0; i < llSongList.getChildCount(); i++) {
+            if((Integer)llSongList.getChildAt(i).getTag() == musicManager.getCurrentSong().getId()) {
+                llSongList.getChildAt(i).setBackgroundColor(root.getContext().getColor(R.color.colorAccent));
+            } else {
+                llSongList.getChildAt(i).setBackgroundColor(root.getContext().getColor(R.color.colorSecondaryDark));
+            }
+        }
+    }
 
     private void callNextSong() {
         musicManager.changeSong(musicManager.getNextSong());
@@ -526,23 +421,6 @@ public class BrowseFragment extends Fragment {
         }
 
         return views;
-    }
-
-    private List<CheckBox> getAllCheckboxes() {
-
-        List<CheckBox> checkBoxes = new ArrayList<>();
-
-        for(View view : getChildren(llSongList))  {
-            if(view instanceof ViewGroup) {
-                for(View cb : getChildren((ViewGroup) view)) {
-                    if(cb instanceof CheckBox) {
-                        checkBoxes.add((CheckBox) cb);
-                    }
-                }
-            }
-        }
-
-        return checkBoxes;
     }
 
     public void refreshSongList() {

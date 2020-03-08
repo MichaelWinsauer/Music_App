@@ -18,6 +18,12 @@
             android:iconTint="@color/colorPrimary"
             />
         <item
+            android:id="@+id/nav_converter"
+            android:title="Converter"
+            android:icon="@drawable/home_converter"
+            android:iconTint="@color/colorPrimary"
+            />
+        <item
             android:id="@+id/nav_settings"
             android:title="Settings"
             android:icon="@drawable/home_settings"

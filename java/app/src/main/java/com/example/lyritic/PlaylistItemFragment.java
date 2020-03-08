@@ -1,6 +1,8 @@
 package com.example.lyritic;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
@@ -22,7 +25,7 @@ public class PlaylistItemFragment extends Fragment {
     private ConstraintLayout clPlaylistBase;
     private TextView txtPlaylistName;
     private TextView txtPlaylistSongCount;
-
+    private PlaylistItemListener playlistItemListener;
 
     public PlaylistItemFragment() {
         // Required empty public constructor
@@ -64,6 +67,7 @@ public class PlaylistItemFragment extends Fragment {
 
         txtPlaylistName.setText(playlist.getName());
         txtPlaylistSongCount.setText(Integer.toString(playlist.getSongList().size()));
+        clPlaylistBase.setTag(playlist.getId());
 
         clPlaylistBase.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,7 +78,37 @@ public class PlaylistItemFragment extends Fragment {
             }
         });
 
+        clPlaylistBase.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
 
+                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+                alertDialog.setTitle("Delete Playlist?");
+                alertDialog.setMessage("Are you sure, you want to delete '" + playlist.getName() + "'?");
+                alertDialog.setPositiveButton("Delete", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        musicManager.removePlaylist(playlist);
+                        playlistItemListener.onDelete();
+                    }
+                });
+                alertDialog.show();
+
+                return false;
+            }
+        });
         return view;
+    }
+
+    public interface PlaylistItemListener {
+        public void onDelete();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        playlistItemListener = (PlaylistItemListener) context;
+
+        super.onAttach(context);
     }
 }

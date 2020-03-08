@@ -2,6 +2,7 @@ package com.example.lyritic;
 
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.widget.Toast;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,6 +29,8 @@ public class MusicManager {
     private Boolean isSelectionMode = false;
     private Boolean selectionModeChanged = false;
     private List<SongListener> songListeners = new ArrayList<>();
+    private List<Song> tmp = new ArrayList<>();
+    private List<Song> playlistBackup = new ArrayList<>();
 
     public MusicManager() {
         songList = new ArrayList<>();
@@ -119,7 +122,7 @@ public class MusicManager {
 
     private void toggleSeekBarProgress(Handler handler, Runnable update) {
         if(player.isPlaying()) {
-            handler.postDelayed(update, 0);
+            handler.postDelayed(update, 50);
         } else {
             handler.removeCallbacks(update);
         }
@@ -378,6 +381,21 @@ public class MusicManager {
         play();
     }
 
+    public boolean addSongsToPlaylist(Playlist p) {
+        if(tmp == null || tmp.size() <= 0) {
+            return false;
+        }
+
+        for(Song s : tmp) {
+            if(!p.getSongList().contains(s)) {
+                p.addSong(s);
+            }
+        }
+
+        tmp.clear();
+        return true;
+    }
+
     private void defaultSorting() {
         sortSongList(R.id.sortDate, false);
         if(currentSong == null && songList != null && songList.size() > 0) {
@@ -395,8 +413,38 @@ public class MusicManager {
         return null;
     }
 
+    public void addPlaylist(Playlist p) {
+        playlists.add(p);
+    }
+
+    public void removePlaylist(Playlist p) {
+        playlists.remove(p);
+    }
+
     public void addSongListener(SongListener sl) {
         songListeners.add(sl);
+    }
+
+    public void setTempSongs(List<Song> tmp) {
+        this.tmp = tmp;
+    }
+
+    public List<Song> getTempSongs() {
+        return tmp;
+    }
+
+    public void deselectAllSongs() {
+        for(Song s : songList) {
+            s.setSelected(false);
+        }
+    }
+
+    public List<Song> getPlaylistBackup() {
+        return playlistBackup;
+    }
+
+    public void setPlaylistBackup(List<Song> playlistBackup) {
+        this.playlistBackup = playlistBackup;
     }
 
     public interface SongListener {
@@ -453,5 +501,9 @@ public class MusicManager {
 
     public void setPlaylists(List<Playlist> playlists) {
         this.playlists = playlists;
+    }
+
+    public Boolean getShuffled() {
+        return isShuffled;
     }
 }

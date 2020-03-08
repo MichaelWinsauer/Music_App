@@ -1,9 +1,10 @@
 package com.example.lyritic;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-class Playlist {
+class Playlist implements Serializable {
 
     private static int count;
     private int id;

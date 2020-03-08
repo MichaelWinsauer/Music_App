@@ -108,6 +108,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@color/colorPrimaryDark"
+            android:clickable="true"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_lyritic_logo" />
 
@@ -116,10 +117,24 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:clickable="true"
             android:background="@color/colorPrimaryDark"
             android:scaleType="fitCenter"
             android:tint="@color/colorPrimary"
             app:srcCompat="@drawable/vertical_menu" />
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabBackToTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="25dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/svSongList"
+        app:layout_constraintEnd_toEndOf="@+id/svSongList"
+        app:srcCompat="@drawable/arrow_up"
+        android:longClickable="true"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

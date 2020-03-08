@@ -1,10 +1,12 @@
 package com.example.lyritic;
 
 import android.Manifest;
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,9 +29,16 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 
-public class Home extends AppCompatActivity implements OnNavigationItemSelectedListener, Sort.BottomSheetListener, SongFragment.SongFragmentListener {
+public class Home extends AppCompatActivity implements OnNavigationItemSelectedListener, Sort.BottomSheetListener, SongFragment.SongFragmentListener, AddPlaylistDialog.AddPlaylistDialogListener, AddSongsToPlaylistDialogFragment.AddSongsToPlaylistListener, PlaylistItemFragment.PlaylistItemListener, ConverterFragment.ConverterListener {
 
-    MusicManager musicManager;
+    private final String SHARED_PREFS = "sharedPrefs";
+    private final String CURRENT_SONG_ID = "current_song_id";
+    private final String CURRENT_POSITION = "currentPosition";
+    private final String IS_SHUFFLE = "is_shuffle";
+    private final String IS_REPEAT = "is_repeat";
+
+
+    private MusicManager musicManager;
     final int external_storage_permission_code = 1;
 
     DrawerLayout drawer;
@@ -49,19 +58,14 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
         setContentView(R.layout.drawer_layout);
         this.savedInstanceState = savedInstanceState;
 
-//        if (!isTaskRoot()) {
-//
-//            finish();
-//            return;
-//        }
-
         initialize();
         checkAppPermissions();
         loadFragment();
+        LocationTracker locationTracker = new LocationTracker(this);
     }
 
     private void loadFragment() {
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_browse);
         }
@@ -79,7 +83,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+                if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
                     BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                     browseFragment.searchSong(query);
                 }
@@ -88,7 +92,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+                if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
                     BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                     browseFragment.searchSong(newText);
                 }
@@ -107,7 +111,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case R.id.nav_browse:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
                 navigationView.setCheckedItem(R.id.nav_browse);
@@ -116,8 +120,13 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
             case R.id.nav_playlists:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PlaylistsFragment()).commit();
-                Toast.makeText(this, Integer.toString(musicManager.getPlaylists().get(0).getSongList().size()), Toast.LENGTH_SHORT).show();
                 navigationView.setCheckedItem(R.id.nav_playlists);
+                isBrowse = false;
+                break;
+
+            case R.id.nav_converter:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ConverterFragment()).commit();
+                navigationView.setCheckedItem(R.id.nav_converter);
                 isBrowse = false;
                 break;
 
@@ -135,10 +144,9 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
                 Sort sort = new Sort();
                 sort.show(getSupportFragmentManager(), "sort");
                 break;
-
         }
 
-        if(item.getItemId() != R.id.nav_search) {
+        if (item.getItemId() != R.id.nav_search) {
             drawer.closeDrawer(GravityCompat.START);
         }
 
@@ -146,24 +154,47 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     }
 
     @Override
+    protected void onResume() {
+        if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+            BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if (musicManager.getCurrentSong() != null) {
+                browseFragment.refreshData();
+                browseFragment.setSeekBarData();
+            }
+        }
+
+        super.onResume();
+    }
+
+    @Override
     public void onBackPressed() {
-        if(drawer.isDrawerOpen(GravityCompat.START)) {
+        saveData();
+
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
             return;
         }
 
-        if(musicManager.getSelectionMode()) {
+        if (musicManager.getSelectionMode()) {
+            musicManager.deselectAllSongs();
             musicManager.setSelectionMode(false);
-            if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
                 BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 browseFragment.toggleSelection();
                 return;
             }
         }
 
-        if(searchView.hasFocus()) {
+        if (searchView.hasFocus()) {
             searchView.setQuery("", false);
             searchView.setIconified(true);
+        }
+
+        if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof PlaylistsFragment) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
+            navigationView.setCheckedItem(R.id.nav_browse);
+            isBrowse = true;
+            return;
         }
 
 
@@ -172,12 +203,12 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     private void initialize() {
 
-    if(DataManager.getMusicManager() == null) {
-        musicManager = new MusicManager();
-        DataManager.setMusicManager(musicManager);
-    } else {
-        musicManager = DataManager.getMusicManager();
-    }
+        if (DataManager.getMusicManager() == null) {
+            musicManager = new MusicManager();
+            DataManager.setMusicManager(musicManager);
+        } else {
+            musicManager = DataManager.getMusicManager();
+        }
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -188,8 +219,12 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.app_name, R.string.app_name) {
             @Override
             public void onDrawerStateChanged(int newState) {
-                if(musicManager.getCurrentSong() != null) {
-                    imgCover.setImageBitmap(Tools.createClippingMask(musicManager.getCurrentSong().getCover(), BitmapFactory.decodeResource(getResources(), R.drawable.cover_mask_circle)));
+                if (musicManager.getCurrentSong() != null) {
+                    if (musicManager.getCurrentSong().getCover() != null) {
+                        imgCover.setImageBitmap(Tools.createClippingMask(musicManager.getCurrentSong().getCover(), BitmapFactory.decodeResource(getResources(), R.drawable.cover_mask_circle)));
+                    } else {
+                        imgCover.setImageBitmap(Tools.createClippingMask(BitmapFactory.decodeResource(getResources(), R.drawable.missing_img), BitmapFactory.decodeResource(getResources(), R.drawable.cover_mask_circle)));
+                    }
                     txtTitle.setText(musicManager.getCurrentSong().getTitle());
                     txtArtist.setText(musicManager.getCurrentSong().getInterpret());
                 }
@@ -209,31 +244,116 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     }
 
+    private void refreshPlaylists() {
+        if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof PlaylistsFragment) {
+            PlaylistsFragment playlistsFragment = (PlaylistsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            playlistsFragment.loadPlaylists();
+        }
+    }
+
+    private void saveData() {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putInt(CURRENT_SONG_ID, musicManager.getCurrentSong().getId());
+        editor.putBoolean(IS_REPEAT, musicManager.getPlayer().isLooping());
+        editor.putBoolean(IS_SHUFFLE, musicManager.getShuffled());
+        editor.putInt(CURRENT_POSITION, musicManager.getPlayer().getCurrentPosition());
+        editor.apply();
+
+        MusicData ms = new MusicData();
+        ms.setPlaylistData(musicManager.getPlaylists()).save(this);
+
+    }
+
+    private void loadData() {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        musicManager.setCurrentSong(musicManager.getSongById(sharedPreferences.getInt(CURRENT_SONG_ID, musicManager.getSongList().get(0).getId())));
+        musicManager.getPlayer().seekTo(sharedPreferences.getInt(CURRENT_POSITION, 0));
+        if (sharedPreferences.getBoolean(IS_SHUFFLE, false)) {
+            musicManager.toggleShuffle();
+        }
+
+        if (sharedPreferences.getBoolean(IS_REPEAT, false)) {
+            musicManager.toggleLoop();
+        }
+
+        MusicData ms = new MusicData();
+        if (ms.read(this).getPlaylistIds() != null && ms.read(this).getPlaylistIds().size() > 0) {
+            musicManager.getPlaylists().clear();
+            ms.read(this);
+
+            for (int i : ms.getPlaylistIds()) {
+                Playlist p = new Playlist();
+                p.setId(i);
+                p.setName(ms.getPlaylistNames().get(i));
+                musicManager.addPlaylist(p);
+            }
+
+            for (PlaylistIdSongId i : ms.getSongs()) {
+                for (int j : i.getSongIds()) {
+                    if (!musicManager.getPlaylistById(i.getPlaylistId()).getSongList().contains(musicManager.getSongById(j))) {
+                        musicManager.getPlaylistById(i.getPlaylistId()).addSong(musicManager.getSongById(j));
+                    }
+                }
+            }
+        }
+    }
+
     private void checkAppPermissions() {
-        if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(Home.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(Home.this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(Home.this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(Home.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(Home.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+//            ContextCompat.checkSelfPermission(Home.this, Manifest.permission.READ_PHONE_NUMBERS) == PackageManager.PERMISSION_GRANTED
+        ) {
             musicManager.setSongList(ContentLoader.loadSongs(getBaseContext()));
             DataManager.setMusicManager(musicManager);
             Stats.loadData();
+            loadData();
         } else {
             requestPermission();
         }
     }
 
     private void requestPermission() {
-        if(!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
         }
-        ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET}, external_storage_permission_code);
+        ActivityCompat.requestPermissions(Home.this, new String[]{
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_MEDIA_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.READ_PHONE_NUMBERS
+        }, external_storage_permission_code);
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode == external_storage_permission_code) {
-            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                musicManager.setSongList(ContentLoader.loadSongs(getBaseContext()));
-                DataManager.setMusicManager(musicManager);
-                Stats.loadData();
+        boolean denied = false;
+
+        if (requestCode == external_storage_permission_code) {
+            if (grantResults.length > 0) {
+                for (int i : grantResults) {
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                        denied = true;
+                    }
+                }
             } else {
                 Toast.makeText(this, "Keine Berechtigungen", Toast.LENGTH_SHORT).show();
             }
+        }
+
+        if (!denied) {
+            musicManager.setSongList(ContentLoader.loadSongs(getBaseContext()));
+            DataManager.setMusicManager(musicManager);
+            Stats.loadData();
+            loadData();
+        } else {
+            Toast.makeText(this, "Keine Berechtigungen", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -241,7 +361,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     public void onSelection(Integer selection, Boolean ascending) {
         musicManager.sortSongList(selection, ascending);
 
-        if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+        if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
             BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             browseFragment.refreshSongList();
         }
@@ -249,7 +369,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     @Override
     public void onSongClicked(View v, Song s) {
-        if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+        if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
             BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             browseFragment.setSongData(s);
         }
@@ -267,9 +387,33 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     @Override
     public void onSongSelected(View v, Song s) {
-        if(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
+        if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
             BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             browseFragment.toggleSelection();
         }
     }
+
+    @Override
+    public void onPlaylistAdded(Playlist p) {
+        refreshPlaylists();
+    }
+
+    @Override
+    public void onPlaylistClicked(Playlist p) {
+        musicManager.addSongsToPlaylist(p);
+    }
+
+    @Override
+    public void onDelete() {
+        refreshPlaylists();
+    }
+
+    @Override
+    public void onVideoDownloaded() {
+        Toast.makeText(this, "File Converted", Toast.LENGTH_SHORT).show();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
+        navigationView.setCheckedItem(R.id.nav_browse);
+        isBrowse = true;
+    }
+
 }
