@@ -108,17 +108,17 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_browse:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
+                getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_right, R.anim.exit_to_left).replace(R.id.fragment_container, new BrowseFragment()).commit();
                 navigationView.setCheckedItem(R.id.nav_browse);
                 break;
 
             case R.id.nav_playlists:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PlaylistsFragment()).commit();
+                getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_right, R.anim.exit_to_left).replace(R.id.fragment_container, new PlaylistsFragment()).commit();
                 navigationView.setCheckedItem(R.id.nav_playlists);
                 break;
 
             case R.id.nav_converter:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ConverterFragment()).commit();
+                getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_right, R.anim.exit_to_left).replace(R.id.fragment_container, new ConverterFragment()).commit();
                 navigationView.setCheckedItem(R.id.nav_converter);
                 break;
 
@@ -426,7 +426,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     @Override
     public void onVideoDownloaded() {
         Toast.makeText(this, "File Converted", Toast.LENGTH_SHORT).show();
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
+        getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_bottom, R.anim.exit_to_left, R.anim.enter_from_bottom, R.anim.exit_to_left).replace(R.id.fragment_container, new BrowseFragment()).commit();
         navigationView.setCheckedItem(R.id.nav_browse);
     }
 
@@ -443,7 +443,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     @Override
     public void onPlayerClicked() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PlayerFragment()).commit();
+        getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_bottom, R.anim.exit_to_bottom, R.anim.enter_from_bottom, R.anim.exit_to_bottom).replace(R.id.fragment_container, new PlayerFragment()).commit();
     }
 
     @Override

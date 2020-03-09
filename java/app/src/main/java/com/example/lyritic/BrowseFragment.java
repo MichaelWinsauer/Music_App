@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -57,6 +58,10 @@ public class BrowseFragment extends Fragment {
     private ImageButton imgBtnAdd;
     private FloatingActionButton fabBackToTop;
     private ScrollView svSongList;
+    private ImageView ivNext;
+    private ImageView ivPrev;
+    private ImageView ivShuffle;
+    private ImageView ivRepeat;
 
     private float oldX;
     private float oldY;
@@ -131,6 +136,10 @@ public class BrowseFragment extends Fragment {
         imgBtnAdd = root.findViewById(R.id.imgBtnAddSelection);
         fabBackToTop = root.findViewById(R.id.fabBackToTop);
         svSongList = root.findViewById(R.id.svSongList);
+        ivNext = root.findViewById(R.id.ivNext);
+        ivPrev = root.findViewById(R.id.ivPrev);
+        ivShuffle = root.findViewById(R.id.ivShuffle);
+        ivRepeat = root.findViewById(R.id.ivRepeat);
     }
 
     private void prepareMusicManager() {
@@ -191,14 +200,19 @@ public class BrowseFragment extends Fragment {
                 if(!isHoldingPlay) {
                     isHoldingPlay = true;
 
-                    transition = new TransitionSet().addTransition(new ChangeBounds()).setDuration(100);
-                    TransitionManager.beginDelayedTransition(clPlayer, transition);
-                    ViewGroup.LayoutParams params = btnPlay.getLayoutParams();
+//                    transition = new TransitionSet().addTransition(new ChangeBounds()).setDuration(100);
+//                    TransitionManager.beginDelayedTransition(clPlayer, transition);
+//                    ViewGroup.LayoutParams params = btnPlay.getLayoutParams();
+//
+//                    params.height = Tools.dpToPx(100, getActivity());
+//                    params.width = Tools.dpToPx(100, getActivity());
+//
+//                    btnPlay.setLayoutParams(params);
 
-                    params.height = Tools.dpToPx(100, getActivity());
-                    params.width = Tools.dpToPx(100, getActivity());
-
-                    btnPlay.setLayoutParams(params);
+                    ivNext.setVisibility(View.VISIBLE);
+                    ivPrev.setVisibility(View.VISIBLE);
+                    ivRepeat.setVisibility(View.VISIBLE);
+                    ivShuffle.setVisibility(View.VISIBLE);
                 }
 
                 return false;
@@ -249,6 +263,11 @@ public class BrowseFragment extends Fragment {
                         }
                     }
                     isHoldingPlay = false;
+
+                    ivNext.setVisibility(View.GONE);
+                    ivPrev.setVisibility(View.GONE);
+                    ivRepeat.setVisibility(View.GONE);
+                    ivShuffle.setVisibility(View.GONE);
                 }
 
                 return false;
