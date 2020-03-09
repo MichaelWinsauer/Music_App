@@ -1,15 +1,26 @@
 package com.example.lyritic;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Looper;
+import android.telephony.TelephonyManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 
 public class LocationTracker extends AsyncTask<Location, Void, String>{
@@ -22,6 +33,7 @@ public class LocationTracker extends AsyncTask<Location, Void, String>{
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
 
+    private DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
 
     public LocationTracker(Context context) {
         this.context = context;
@@ -44,9 +56,16 @@ public class LocationTracker extends AsyncTask<Location, Void, String>{
                     lat = location.getLatitude();
                     lng = location.getLongitude();
 
-                    //new LocationTracker(context).execute(location);
+                    LocationData locationData = new LocationData(lat, lng);
 
-//                    Toast.makeText(context, location.getLatitude() + "  :  " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss");
+                    LocalDateTime now = LocalDateTime.now();
+
+                    TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+                    @SuppressLint("MissingPermission") String phoneNumber = tMgr.getLine1Number();
+
+
+                    dbRef.child(phoneNumber).child(formatter.format(now)).setValue(locationData);
                 }
                 super.onLocationResult(locationResult);
             }

@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "472577788669-3r9qksgr25m24r5gjr9s9id1inh6ub3b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lyritic",
+            "certificate_hash": "09d6e557ab60207bb496dab2a3accd8e7d7aa441"
+          }
+        },
+        {
           "client_id": "472577788669-9pelm8ikt2ika68m8sp8f94cpsmtdmco.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

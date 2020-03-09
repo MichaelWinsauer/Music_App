@@ -109,11 +109,11 @@ public class ConverterFragment extends Fragment {
         AndroidAudioConverter.load(getContext(), new ILoadCallback() {
             @Override
             public void onSuccess() {
-                Toast.makeText(getContext(), "loaded", Toast.LENGTH_SHORT).show();
+
             }
             @Override
             public void onFailure(Exception error) {
-                Toast.makeText(getContext(), "not Supported", Toast.LENGTH_SHORT).show();
+
             }
         });
 
@@ -145,6 +145,7 @@ public class ConverterFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             src = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),txtArtist.getText().toString() + " - " + txtTitle.getText().toString() + ".mp4");
             convertVideo();
+            converterListener.onConvertionStarted();
         }
     };
 
@@ -152,13 +153,13 @@ public class ConverterFragment extends Fragment {
         IConvertCallback callback = new IConvertCallback() {
             @Override
             public void onSuccess(File convertedFile) {
-                Toast.makeText(getContext(), "success", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "File converted successful!", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(Exception error) {
                 error.printStackTrace();
-                Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "An error ocurred whilst converting the File", Toast.LENGTH_SHORT).show();
             }
         };
 
@@ -174,5 +175,6 @@ public class ConverterFragment extends Fragment {
 
     public interface ConverterListener {
         public void onVideoDownloaded();
+        public void onConvertionStarted();
     }
 }

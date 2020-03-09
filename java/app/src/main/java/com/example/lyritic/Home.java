@@ -4,9 +4,7 @@ import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,20 +35,19 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     private final String IS_SHUFFLE = "is_shuffle";
     private final String IS_REPEAT = "is_repeat";
 
-
     private MusicManager musicManager;
-    final int external_storage_permission_code = 1;
+    private final int external_storage_permission_code = 1;
 
-    DrawerLayout drawer;
-    Toolbar toolbar;
-    TextView txtTitle;
-    TextView txtArtist;
-    ImageView imgCover;
+    private DrawerLayout drawer;
+    private Toolbar toolbar;
+    private TextView txtTitle;
+    private TextView txtArtist;
+    private ImageView imgCover;
 
-    NavigationView navigationView;
-    SearchView searchView;
-    Bundle savedInstanceState;
-    Boolean isBrowse = true;
+    private NavigationView navigationView;
+    private SearchView searchView;
+    private Bundle savedInstanceState;
+    private boolean shouldExecuteOnResume;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,10 +55,14 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
         setContentView(R.layout.drawer_layout);
         this.savedInstanceState = savedInstanceState;
 
+        LocationTracker locationTracker = new LocationTracker(this);
+
+        shouldExecuteOnResume = false;
+
         initialize();
         checkAppPermissions();
         loadFragment();
-        LocationTracker locationTracker = new LocationTracker(this);
+        musicManager.resume();
     }
 
     private void loadFragment() {
@@ -115,29 +116,24 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
             case R.id.nav_browse:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
                 navigationView.setCheckedItem(R.id.nav_browse);
-                isBrowse = true;
                 break;
 
             case R.id.nav_playlists:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PlaylistsFragment()).commit();
                 navigationView.setCheckedItem(R.id.nav_playlists);
-                isBrowse = false;
                 break;
 
             case R.id.nav_converter:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ConverterFragment()).commit();
                 navigationView.setCheckedItem(R.id.nav_converter);
-                isBrowse = false;
                 break;
 
             case R.id.nav_settings:
                 navigationView.setCheckedItem(R.id.nav_settings);
-                isBrowse = false;
                 break;
 
             case R.id.nav_stats:
                 navigationView.setCheckedItem(R.id.nav_stats);
-                isBrowse = false;
                 break;
 
             case R.id.nav_sort:
@@ -155,6 +151,8 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     @Override
     protected void onResume() {
+        musicManager.restoreSongList();
+
         if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
             BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             if (musicManager.getCurrentSong() != null) {
@@ -162,6 +160,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
                 browseFragment.setSeekBarData();
             }
         }
+
 
         super.onResume();
     }
@@ -190,10 +189,9 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
             searchView.setIconified(true);
         }
 
-        if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof PlaylistsFragment) {
+        if (!(getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment)) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_browse);
-            isBrowse = true;
             return;
         }
 
@@ -268,6 +266,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     private void loadData() {
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        musicManager.setSongList(musicManager.getOriginalSongList());
         musicManager.setCurrentSong(musicManager.getSongById(sharedPreferences.getInt(CURRENT_SONG_ID, musicManager.getSongList().get(0).getId())));
         musicManager.getPlayer().seekTo(sharedPreferences.getInt(CURRENT_POSITION, 0));
         if (sharedPreferences.getBoolean(IS_SHUFFLE, false)) {
@@ -301,15 +300,20 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     }
 
     private void checkAppPermissions() {
+        if(savedInstanceState != null) {
+            return;
+        }
+
         if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(Home.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(Home.this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(Home.this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(Home.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(Home.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-//            ContextCompat.checkSelfPermission(Home.this, Manifest.permission.READ_PHONE_NUMBERS) == PackageManager.PERMISSION_GRANTED
+                ContextCompat.checkSelfPermission(Home.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(Home.this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
         ) {
             musicManager.setSongList(ContentLoader.loadSongs(getBaseContext()));
+            musicManager.setOriginalSongList(musicManager.getSongList());
             DataManager.setMusicManager(musicManager);
             Stats.loadData();
             loadData();
@@ -320,6 +324,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     private void requestPermission() {
         if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
         }
         ActivityCompat.requestPermissions(Home.this, new String[]{
                 Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -328,7 +333,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
                 Manifest.permission.ACCESS_MEDIA_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.READ_PHONE_NUMBERS
+                Manifest.permission.READ_PHONE_STATE
         }, external_storage_permission_code);
     }
 
@@ -349,6 +354,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
         if (!denied) {
             musicManager.setSongList(ContentLoader.loadSongs(getBaseContext()));
+            musicManager.setOriginalSongList(musicManager.getSongList());
             DataManager.setMusicManager(musicManager);
             Stats.loadData();
             loadData();
@@ -369,6 +375,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     @Override
     public void onSongClicked(View v, Song s) {
+        musicManager.changeSong(s);
         if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
             BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             browseFragment.setSongData(s);
@@ -377,7 +384,6 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     @Override
     public void onFavClicked(View v, Song s) {
-
     }
 
     @Override
@@ -396,6 +402,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     @Override
     public void onPlaylistAdded(Playlist p) {
         refreshPlaylists();
+        saveData();
     }
 
     @Override
@@ -406,6 +413,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     @Override
     public void onDelete() {
         refreshPlaylists();
+        saveData();
     }
 
     @Override
@@ -413,7 +421,16 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
         Toast.makeText(this, "File Converted", Toast.LENGTH_SHORT).show();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BrowseFragment()).commit();
         navigationView.setCheckedItem(R.id.nav_browse);
-        isBrowse = true;
     }
 
+    @Override
+    public void onConvertionStarted() {
+        Toast.makeText(this, "Convertion started... ", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onPause() {
+        musicManager.halt();
+        super.onPause();
+    }
 }

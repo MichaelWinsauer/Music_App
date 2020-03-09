@@ -21,4 +21,8 @@ public class DataManager {
     public static void setPlaylist(Playlist playlist) {
         DataManager.playlist = playlist;
     }
+
+    public static MusicManager getSongFragmentMusicManager() {
+        return musicManager;
+    }
 }

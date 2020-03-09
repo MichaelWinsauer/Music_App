@@ -149,6 +149,7 @@ public class BrowseFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 togglePlayButton(view);
+
                 musicManager.toggleSong();
             }
         });
@@ -161,6 +162,7 @@ public class BrowseFragment extends Fragment {
                     callNextSong();
 //                    refreshData();
                 }
+                sbHandler.postDelayed(this, 50);
             }
         };
 
@@ -256,6 +258,7 @@ public class BrowseFragment extends Fragment {
         clPlayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                musicManager.halt();
                 Intent intent = new Intent(getContext(), Player.class);
                 DataManager.setMusicManager(musicManager);
                 startActivity(intent);
@@ -303,7 +306,6 @@ public class BrowseFragment extends Fragment {
                     refreshData();
 
                     musicManager.setTempSongs(tmp);
-
                     new AddSongsToPlaylistDialogFragment().show(getActivity().getSupportFragmentManager(), "AddSongsToPlaylist");
 
                 } else {
@@ -330,6 +332,9 @@ public class BrowseFragment extends Fragment {
                 }
             }
         });
+
+        musicManager.toggleSong();
+        musicManager.toggleSong();
     }
 
     public void setSeekBarData() {

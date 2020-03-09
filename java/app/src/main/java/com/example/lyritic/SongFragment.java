@@ -54,7 +54,7 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        musicManager = DataManager.getMusicManager();
+        musicManager = DataManager.getSongFragmentMusicManager();
         musicManager.addSongListener(this);
 
         song = musicManager.getSongById(getArguments().getInt(ARG_PARAM1));
@@ -82,10 +82,12 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
         txtTitle.setText(song.getTitle());
         txtArtist.setText(song.getInterpret());
         txtDuration.setText(song.durationToString((long)song.getDuration()));
+
+        //Wegen performance Problemen auskommentiert.
         if(song.getCover() != null) {
-            imgCover.setImageBitmap(Tools.cropBitmapToSquare(song.getCover()));
+//            imgCover.setImageBitmap(Tools.cropBitmapToSquare(song.getCover()));
         } else {
-            imgCover.setImageBitmap(Tools.cropBitmapToSquare(BitmapFactory.decodeResource(getResources(), R.drawable.missing_img)));
+//            imgCover.setImageBitmap(Tools.cropBitmapToSquare(BitmapFactory.decodeResource(getResources(), R.drawable.missing_img)));
         }
         clBase.setTag(song.getId());
 
@@ -118,12 +120,9 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
             @Override
             public void onClick(View v) {
                 if(!musicManager.getSelectionMode()) {
-                    musicManager.changeSong(song);
                     songFragmentListener.onSongClicked(v, song);
                     return;
                 }
-
-                //TODO: Add to Playlist
 
                 if(!song.getSelected()) {
                     song.setSelected(true);

@@ -72,6 +72,7 @@ public class PlaylistItemFragment extends Fragment {
         clPlaylistBase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                musicManager.toggleSong();
                 DataManager.setPlaylist(playlist);
                 Intent intent = new Intent(getActivity(), PlaylistActivity.class);
                 getActivity().startActivity(intent);

@@ -1,6 +1,8 @@
 package com.example.lyritic;
 
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -19,6 +21,8 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
     private ImageButton imgBtnPlaylistPlay;
     private ImageButton imgBtnPlaylistShuffle;
     private ImageButton imgBtnPlaylistRepeat;
+    private Runnable sbUpdater;
+    private Handler sbHandler;
 
 
 
@@ -30,8 +34,11 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
         musicManager = DataManager.getMusicManager();
         playlist = DataManager.getPlaylist();
 
-        musicManager.setPlaylistBackup(musicManager.getSongList());
-        musicManager.setSongList(playlist.getSongList());
+        musicManager.resume();
+
+        sbHandler = new Handler();
+
+        musicManager.setSongListFromPlaylist(playlist.getSongList());
 
         llSongList = findViewById(R.id.llSongList);
         imgBtnPlaylistPlay = findViewById(R.id.imgBtnPlaylistPlay);
@@ -49,7 +56,16 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
         imgBtnPlaylistPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                musicManager.toggleSong();
+
+                if(playlist.getSongList().size() <= 0 || playlist.getSongList() == null) {
+                    return;
+                }
+
+                if(!playlist.getSongList().contains(musicManager.getCurrentSong())) {
+                    musicManager.changeSong(playlist.getSongList().get(0));
+                } else {
+                    musicManager.toggleSong();
+                }
             }
         });
 
@@ -66,6 +82,22 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
                 musicManager.toggleShuffle();
             }
         });
+
+        sbUpdater = new Runnable() {
+            @Override
+            public void run() {
+                if (!musicManager.getPlayer().isPlaying()) {
+                    musicManager.changeSong(musicManager.getNextSong());
+                    musicManager.setSongsByCurrentSong();
+                }
+                sbHandler.postDelayed(this, 50);
+            }
+        };
+
+        musicManager.setSeekBarData(sbHandler, sbUpdater);
+
+        musicManager.toggleSong();
+        musicManager.toggleSong();
     }
 
     private void createSongs() {
@@ -77,7 +109,7 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
 
     @Override
     public void onSongClicked(View v, Song s) {
-
+        musicManager.changeSong(s);
     }
 
     @Override
@@ -95,4 +127,11 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
 
     }
 
+    @Override
+    public void onBackPressed() {
+        musicManager.restoreSongList();
+        musicManager.halt();
+
+        super.onBackPressed();
+    }
 }

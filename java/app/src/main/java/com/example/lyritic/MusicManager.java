@@ -1,9 +1,12 @@
 package com.example.lyritic;
 
+import android.content.Context;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,24 +16,33 @@ import java.util.List;
 import java.util.Random;
 
 public class MusicManager {
+    private MediaPlayer player;
+
     private Song currentSong;
     private Song prevSong;
     private Song nextSong;
-    private MediaPlayer player;
-    private List<Song> songList;
+
+    private List<Song> songList; //songlist, which gets changed depend. on context (not android context)
+    private List<Song> backup;  //shuffle Backup for temp
+    private List<Song> selectionBackup;  //selection Backup for multiselect
+    private List<Song> tmp = new ArrayList<>(); //temporäre Playlist, für das Hinzufügen von Liedern in eine Playlist
+    private List<Song> originalSongList = new ArrayList<>();
+
+    private List<Playlist> playlists;
+    private List<SongListener> songListeners = new ArrayList<>();
+
     private Handler handler;
     private Runnable update;
+
     private Comparator<Song> comparator;
+
     private Boolean isPrepared = false;
-    private List<Song> backup;
     private Boolean isShuffled = false;
-    private List<Song> selectionBackup;
-    private List<Playlist> playlists;
     private Boolean isSelectionMode = false;
     private Boolean selectionModeChanged = false;
-    private List<SongListener> songListeners = new ArrayList<>();
-    private List<Song> tmp = new ArrayList<>();
-    private List<Song> playlistBackup = new ArrayList<>();
+    private Boolean wasPlayling = false;
+
+    private int position;
 
     public MusicManager() {
         songList = new ArrayList<>();
@@ -106,6 +118,10 @@ public class MusicManager {
 
     public void toggleSong() {
 
+        if(currentSong == null) {
+            return;
+        }
+
         if(!isPrepared) {
             changeSong(currentSong);
             return;
@@ -121,6 +137,10 @@ public class MusicManager {
     }
 
     private void toggleSeekBarProgress(Handler handler, Runnable update) {
+        if(handler == null || update == null) {
+            return;
+        }
+
         if(player.isPlaying()) {
             handler.postDelayed(update, 50);
         } else {
@@ -439,12 +459,39 @@ public class MusicManager {
         }
     }
 
-    public List<Song> getPlaylistBackup() {
-        return playlistBackup;
+    public void setSongListFromPlaylist(List<Song> songList) {
+        this.songList = songList;
+        setSongsByCurrentSong();
     }
 
-    public void setPlaylistBackup(List<Song> playlistBackup) {
-        this.playlistBackup = playlistBackup;
+    public void restoreSongList() {
+        this.songList = originalSongList;
+        setSongsByCurrentSong();
+    }
+
+    public void halt() {
+        if(player.isPlaying()) {
+            wasPlayling = true;
+        } else {
+            wasPlayling = false;
+        }
+        position = player.getCurrentPosition();
+        player.stop();
+    }
+
+    public void resume() {
+        if(wasPlayling) {
+            player.seekTo(position);
+            play();
+        }
+    }
+
+    public List<Song> getOriginalSongList() {
+        return originalSongList;
+    }
+
+    public void setOriginalSongList(List<Song> originalSongList) {
+        this.originalSongList = originalSongList;
     }
 
     public interface SongListener {

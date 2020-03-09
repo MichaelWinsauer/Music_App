@@ -40,6 +40,10 @@ public class Player extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.player);
 
+        musicManager = DataManager.getMusicManager();
+
+        musicManager.resume();
+
         initializeReferences();
         initializeEventListener();
         if(musicManager.getCurrentSong() != null) {
@@ -51,7 +55,6 @@ public class Player extends AppCompatActivity {
     }
 
     private void initializeReferences() {
-        musicManager = DataManager.getMusicManager();
         sbHandler = new Handler();
 
         clBase = findViewById(R.id.clBase);
@@ -166,5 +169,17 @@ public class Player extends AppCompatActivity {
         txtDuration.setText(musicManager.getCurrentSong().durationToString((long) musicManager.getCurrentSong().getDuration()));
 
         displayImage();
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onPause() {
+        musicManager.halt();
+        super.onPause();
     }
 }
