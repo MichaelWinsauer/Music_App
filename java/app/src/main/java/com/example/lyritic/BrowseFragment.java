@@ -61,6 +61,9 @@ public class BrowseFragment extends Fragment {
     private float oldX;
     private float oldY;
     private Boolean isHoldingPlay = false;
+
+    private BrowseListener browseListener;
+
     public BrowseFragment() {
 
     }
@@ -158,10 +161,7 @@ public class BrowseFragment extends Fragment {
             @Override
             public void run() {
                 sbSongProgress.setProgress(musicManager.getPercentageProgress());
-                if(!musicManager.getPlayer().isPlaying()) {
-                    callNextSong();
-//                    refreshData();
-                }
+
                 sbHandler.postDelayed(this, 50);
             }
         };
@@ -259,9 +259,10 @@ public class BrowseFragment extends Fragment {
             @Override
             public void onClick(View v) {
 //                musicManager.pauseBeforeActivity();
-                Intent intent = new Intent(getContext(), Player.class);
+//                Intent intent = new Intent(getContext(), Player.class);
                 DataManager.setMusicManager(musicManager);
-                startActivity(intent);
+//                startActivity(intent);
+                browseListener.onPlayerClicked();
             }
         });
 
@@ -413,20 +414,7 @@ public class BrowseFragment extends Fragment {
         }
     }
 
-    private void callNextSong() {
-        musicManager.changeSong(musicManager.getNextSong());
-        musicManager.setSongsByCurrentSong();
-    }
 
-    private List<View> getChildren(ViewGroup vg) {
-        List<View> views = new ArrayList<>();
-
-        for(int i = 0; i < vg.getChildCount(); i++) {
-            views.add(vg.getChildAt(i));
-        }
-
-        return views;
-    }
 
     public void refreshSongList() {
         createSongs(llSongList, null);
@@ -435,5 +423,16 @@ public class BrowseFragment extends Fragment {
     public void setSongData(Song s) {
         currentSong.setText(s.getTitle());
         currentArtist.setText(s.getInterpret());
+    }
+
+    public interface BrowseListener {
+        public void onPlayerClicked();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        browseListener = (BrowseListener) context;
+
+        super.onAttach(context);
     }
 }

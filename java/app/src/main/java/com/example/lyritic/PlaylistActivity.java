@@ -33,11 +33,11 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
         musicManager = DataManager.getMusicManager();
         playlist = DataManager.getPlaylist();
 
-        musicManager.resumeInActivity();
-
         sbHandler = new Handler();
 
-        musicManager.setSongListFromPlaylist(playlist.getSongList());
+        if(playlist.getSongList().size() > 0) {
+            musicManager.setSongListFromPlaylist(playlist.getSongList());
+        }
 
         llSongList = findViewById(R.id.llSongList);
         imgBtnPlaylistPlay = findViewById(R.id.imgBtnPlaylistPlay);
@@ -128,8 +128,7 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
 
     @Override
     public void onBackPressed() {
-//        musicManager.restoreSongList();
-//        musicManager.pauseBeforeActivity();
+        musicManager.restoreSongList();
 
         super.onBackPressed();
     }

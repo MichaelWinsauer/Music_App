@@ -1,12 +1,8 @@
 package com.example.lyritic;
 
-import android.content.Context;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Handler;
-import android.widget.Toast;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,7 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-public class MusicManager {
+public class MusicManager implements MediaPlayer.OnCompletionListener {
     private MediaPlayer player;
 
     private Song currentSong;
@@ -37,6 +33,7 @@ public class MusicManager {
     private Comparator<Song> comparator;
 
     private Boolean isPrepared = false;
+    private Boolean isPlaying = false;
     private Boolean isShuffled = false;
     private Boolean isSelectionMode = false;
     private Boolean selectionModeChanged = false;
@@ -71,6 +68,7 @@ public class MusicManager {
 
         Stats.listend(currentSong);
         player.start();
+        isPlaying = true;
     }
 
     public void changeSong(Song newSong) {
@@ -94,10 +92,16 @@ public class MusicManager {
 
         if(currentSong.getId() == newSong.getId()) {
             if(player.isPlaying()) {
-                player.pause();
+                try {
+                    isPlaying = false;
+                    player.pause();
+                }catch (IllegalStateException e) {
+                    handler.removeCallbacks(update);
+                }
             } else {
                 if(isPrepared) {
                     player.start();
+                    isPlaying = true;
                 } else {
                     play();
                 }
@@ -129,8 +133,14 @@ public class MusicManager {
 
         if(!player.isPlaying()) {
             player.start();
+            isPlaying = true;
         } else {
-            player.pause();
+            try {
+                isPlaying = false;
+                player.pause();
+            } catch (IllegalStateException e) {
+                handler.removeCallbacks(update);
+            }
         }
 
         toggleSeekBarProgress(handler, update);
@@ -470,11 +480,17 @@ public class MusicManager {
     }
 
     public void pauseBeforeActivity() {
-        player.pause();
+        try {
+            isPlaying = false;
+            player.pause();
+        }catch (IllegalStateException e) {
+            handler.removeCallbacks(update);
+        }
     }
 
     public void resumeInActivity() {
         player.start();
+        isPlaying = true;
     }
 
     public List<Song> getOriginalSongList() {
@@ -483,6 +499,20 @@ public class MusicManager {
 
     public void setOriginalSongList(List<Song> originalSongList) {
         this.originalSongList = originalSongList;
+    }
+
+    public Boolean getPlaying() {
+        return isPlaying;
+    }
+
+    public void setPlaying(Boolean playing) {
+        isPlaying = playing;
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        changeSong(getNextSong());
+        setSongsByCurrentSong();
     }
 
     public interface SongListener {

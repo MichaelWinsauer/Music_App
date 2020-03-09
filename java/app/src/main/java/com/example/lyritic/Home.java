@@ -27,7 +27,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 
-public class Home extends AppCompatActivity implements OnNavigationItemSelectedListener, Sort.BottomSheetListener, SongFragment.SongFragmentListener, AddPlaylistDialog.AddPlaylistDialogListener, AddSongsToPlaylistDialogFragment.AddSongsToPlaylistListener, PlaylistItemFragment.PlaylistItemListener, ConverterFragment.ConverterListener {
+public class Home extends AppCompatActivity implements OnNavigationItemSelectedListener, Sort.BottomSheetListener, SongFragment.SongFragmentListener, AddPlaylistDialog.AddPlaylistDialogListener, AddSongsToPlaylistDialogFragment.AddSongsToPlaylistListener, PlaylistItemFragment.PlaylistItemListener, ConverterFragment.ConverterListener, BrowseFragment.BrowseListener, PlayerFragment.PlayerListener {
 
     private final String SHARED_PREFS = "sharedPrefs";
     private final String CURRENT_SONG_ID = "current_song_id";
@@ -267,6 +267,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 //        musicManager.play();
 //        musicManager.getPlayer().pause();
         musicManager.setCurrentSong(musicManager.getSongById(sharedPreferences.getInt(CURRENT_SONG_ID, musicManager.getSongList().get(0).getId())));
+        musicManager.setSongsByCurrentSong();
         musicManager.getPlayer().seekTo(sharedPreferences.getInt(CURRENT_POSITION, 0));
 
         if (sharedPreferences.getBoolean(IS_SHUFFLE, false)) {
@@ -365,6 +366,10 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
         }
     }
 
+    public static MusicManager getMusicManager() {
+        return DataManager.getMusicManager();
+    }
+
     @Override
     public void onSelection(Integer selection, Boolean ascending) {
         musicManager.sortSongList(selection, ascending);
@@ -434,5 +439,15 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     protected void onPause() {
 //        musicManager.pauseBeforeActivity();
         super.onPause();
+    }
+
+    @Override
+    public void onPlayerClicked() {
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PlayerFragment()).commit();
+    }
+
+    @Override
+    public void onPlayClicked() {
+        musicManager.toggleSong();
     }
 }
