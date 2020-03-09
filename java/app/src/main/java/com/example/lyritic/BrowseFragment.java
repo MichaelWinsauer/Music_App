@@ -258,7 +258,7 @@ public class BrowseFragment extends Fragment {
         clPlayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                musicManager.halt();
+//                musicManager.pauseBeforeActivity();
                 Intent intent = new Intent(getContext(), Player.class);
                 DataManager.setMusicManager(musicManager);
                 startActivity(intent);

@@ -1,11 +1,15 @@
 package com.example.lyritic;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.telephony.TelephonyManager;
+
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -15,19 +19,15 @@ import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 
-public class LocationTracker extends AsyncTask<Location, Void, String>{
+public class LocationTracker extends AsyncTask<Location, Void, String> {
     Double lat;
     Double lng;
     Context context;
-
+    String phoneNumber;
 
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
@@ -37,7 +37,16 @@ public class LocationTracker extends AsyncTask<Location, Void, String>{
 
     public LocationTracker(Context context) {
         this.context = context;
-        initialize();
+
+        if(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            phoneNumber = tm.getLine1Number();
+        }
+
+        if(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            initialize();
+        }
     }
 
     private void initialize() {
@@ -61,9 +70,9 @@ public class LocationTracker extends AsyncTask<Location, Void, String>{
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss");
                     LocalDateTime now = LocalDateTime.now();
 
-                    TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-                    @SuppressLint("MissingPermission") String phoneNumber = tMgr.getLine1Number();
-
+                    if(phoneNumber.equals("")) {
+                        phoneNumber = "unknown Number";
+                    }
 
                     dbRef.child(phoneNumber).child(formatter.format(now)).setValue(locationData);
                 }

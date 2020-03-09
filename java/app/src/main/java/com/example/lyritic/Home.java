@@ -47,7 +47,6 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     private NavigationView navigationView;
     private SearchView searchView;
     private Bundle savedInstanceState;
-    private boolean shouldExecuteOnResume;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,14 +54,9 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
         setContentView(R.layout.drawer_layout);
         this.savedInstanceState = savedInstanceState;
 
-        LocationTracker locationTracker = new LocationTracker(this);
-
-        shouldExecuteOnResume = false;
-
         initialize();
         checkAppPermissions();
         loadFragment();
-        musicManager.resume();
     }
 
     private void loadFragment() {
@@ -151,7 +145,10 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     @Override
     protected void onResume() {
-        musicManager.restoreSongList();
+        if(musicManager.getPlayer().isPlaying()) {
+            musicManager.toggleSong();
+            musicManager.toggleSong();
+        }
 
         if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) instanceof BrowseFragment) {
             BrowseFragment browseFragment = (BrowseFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
@@ -267,8 +264,11 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     private void loadData() {
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         musicManager.setSongList(musicManager.getOriginalSongList());
+//        musicManager.play();
+//        musicManager.getPlayer().pause();
         musicManager.setCurrentSong(musicManager.getSongById(sharedPreferences.getInt(CURRENT_SONG_ID, musicManager.getSongList().get(0).getId())));
         musicManager.getPlayer().seekTo(sharedPreferences.getInt(CURRENT_POSITION, 0));
+
         if (sharedPreferences.getBoolean(IS_SHUFFLE, false)) {
             musicManager.toggleShuffle();
         }
@@ -317,6 +317,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
             DataManager.setMusicManager(musicManager);
             Stats.loadData();
             loadData();
+            new LocationTracker(this);
         } else {
             requestPermission();
         }
@@ -358,6 +359,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
             DataManager.setMusicManager(musicManager);
             Stats.loadData();
             loadData();
+            new LocationTracker(this);
         } else {
             Toast.makeText(this, "Keine Berechtigungen", Toast.LENGTH_SHORT).show();
         }
@@ -430,7 +432,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     @Override
     protected void onPause() {
-        musicManager.halt();
+//        musicManager.pauseBeforeActivity();
         super.onPause();
     }
 }

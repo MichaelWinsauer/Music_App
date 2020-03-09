@@ -469,21 +469,12 @@ public class MusicManager {
         setSongsByCurrentSong();
     }
 
-    public void halt() {
-        if(player.isPlaying()) {
-            wasPlayling = true;
-        } else {
-            wasPlayling = false;
-        }
-        position = player.getCurrentPosition();
-        player.stop();
+    public void pauseBeforeActivity() {
+        player.pause();
     }
 
-    public void resume() {
-        if(wasPlayling) {
-            player.seekTo(position);
-            play();
-        }
+    public void resumeInActivity() {
+        player.start();
     }
 
     public List<Song> getOriginalSongList() {

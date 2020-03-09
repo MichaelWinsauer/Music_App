@@ -1,21 +1,23 @@
 package com.example.lyritic;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.marcinmoskala.arcseekbar.ArcSeekBar;
-import com.marcinmoskala.arcseekbar.ProgressListener;
+
+import java.io.File;
 
 
 public class Player extends AppCompatActivity {
@@ -42,7 +44,9 @@ public class Player extends AppCompatActivity {
 
         musicManager = DataManager.getMusicManager();
 
-        musicManager.resume();
+        if(musicManager.getPlayer().isPlaying()) {
+            musicManager.toggleSong();
+        }
 
         initializeReferences();
         initializeEventListener();
@@ -179,7 +183,7 @@ public class Player extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        musicManager.halt();
+//        musicManager.pauseBeforeActivity();
         super.onPause();
     }
 }

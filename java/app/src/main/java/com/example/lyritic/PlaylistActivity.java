@@ -1,6 +1,5 @@
 package com.example.lyritic;
 
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -34,7 +33,7 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
         musicManager = DataManager.getMusicManager();
         playlist = DataManager.getPlaylist();
 
-        musicManager.resume();
+        musicManager.resumeInActivity();
 
         sbHandler = new Handler();
 
@@ -129,8 +128,8 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
 
     @Override
     public void onBackPressed() {
-        musicManager.restoreSongList();
-        musicManager.halt();
+//        musicManager.restoreSongList();
+//        musicManager.pauseBeforeActivity();
 
         super.onBackPressed();
     }
