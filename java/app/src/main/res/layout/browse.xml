@@ -115,7 +115,13 @@
             android:background="@color/colorPrimaryDark"
             android:clickable="true"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_lyritic_logo" />
+            app:srcCompat="@drawable/play_arrow_50dp" />
+
+        <View
+            android:id="@+id/viewDivider"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorSecondaryDark" />
 
         <ImageButton
             android:id="@+id/imgBtnAddSelection"
@@ -126,7 +132,7 @@
             android:clickable="true"
             android:scaleType="fitCenter"
             android:tint="@color/colorPrimary"
-            app:srcCompat="@drawable/vertical_menu" />
+            app:srcCompat="@drawable/add" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
