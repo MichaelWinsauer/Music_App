@@ -97,6 +97,12 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
             clBase.setBackgroundColor(activity.getColor(R.color.colorSecondaryDark));
         }
 
+        if(song.getSelected()) {
+            clBase.setBackgroundColor(getActivity().getColor(R.color.colorPrimaryDark));
+        } else {
+            clBase.setBackgroundColor(activity.getColor(R.color.colorSecondaryDark));
+        }
+
         if(musicManager.getFav(musicManager.getSongById(song.getId()))) {
             imgBtnFav.setImageResource(R.drawable.heart);
         } else {

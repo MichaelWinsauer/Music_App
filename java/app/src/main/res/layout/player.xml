@@ -53,22 +53,28 @@
 
     <ImageButton
         android:id="@+id/imgbtnRepeat"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginBottom="85dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="50dp"
         android:background="@drawable/seekbar_background"
+        android:padding="15dp"
+        android:scaleType="fitCenter"
+        android:scaleX=".3"
+        android:scaleY=".3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/repeat" />
 
     <ImageButton
         android:id="@+id/imgbtnShuffle"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginBottom="85dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="50dp"
         android:background="@drawable/seekbar_background"
+        android:padding="15dp"
+        android:scaleType="fitCenter"
+        android:scaleX=".3"
+        android:scaleY=".3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/shuffle" />
@@ -110,11 +116,12 @@
         android:background="@drawable/seekbar__progress"
         android:backgroundTint="@color/colorAccent"
         android:scaleType="fitCenter"
+        android:tint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/imgbtnShuffle"
         app:layout_constraintStart_toEndOf="@+id/imgbtnRepeat"
-        app:srcCompat="@drawable/play_arrow_50dp"
-        tools:srcCompat="@drawable/play_arrow_50dp" />
+
+        app:srcCompat="@drawable/play_arrow_50dp" />
 
     <ImageView
         android:id="@+id/ivCover"

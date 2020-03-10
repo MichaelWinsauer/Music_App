@@ -45,6 +45,12 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
 
         initializeListener();
         createSongs();
+
+        if(!musicManager.getPlaying()) {
+            imgBtnPlaylistPlay.setBackground(getDrawable(R.drawable.ic_play_arrow_black_24dp));
+        } else {
+            imgBtnPlaylistPlay.setBackground(getDrawable(R.drawable.ic_pause_black_24dp));
+        }
     }
 
     private void initializeListener() {
@@ -60,6 +66,12 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
                     musicManager.changeSong(playlist.getSongList().get(0));
                 } else {
                     musicManager.toggleSong();
+                }
+
+                if(!musicManager.getPlaying()) {
+                    imgBtnPlaylistPlay.setBackground(getDrawable(R.drawable.ic_play_arrow_black_24dp));
+                } else {
+                    imgBtnPlaylistPlay.setBackground(getDrawable(R.drawable.ic_pause_black_24dp));
                 }
             }
         });

@@ -83,6 +83,11 @@ public class Player extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 musicManager.toggleLoop();
+                if(musicManager.getPlayer().isLooping()) {
+                    v.setBackgroundTintList(getBaseContext().getResources().getColorStateList(R.color.colorAccent));
+                } else {
+                    v.setBackgroundTintList(getBaseContext().getResources().getColorStateList(R.color.colorPrimaryDark));
+                }
             }
         });
 
@@ -107,6 +112,11 @@ public class Player extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 musicManager.toggleShuffle();
+                if(musicManager.getShuffled()) {
+                    v.setBackgroundTintList(getBaseContext().getResources().getColorStateList(R.color.colorAccent));
+                } else {
+                    v.setBackgroundTintList(getBaseContext().getResources().getColorStateList(R.color.colorPrimaryDark));
+                }
             }
         });
 

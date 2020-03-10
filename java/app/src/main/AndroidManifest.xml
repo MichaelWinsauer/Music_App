@@ -36,10 +36,12 @@
             tools:ignore="LockedOrientationActivity">
 
         </activity>
-        <activity android:name=".Details" android:theme="@style/AppTheme.NoActionBar" >
+        <activity android:name=".Details" android:theme="@style/AppTheme.NoActionBar" android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity">
 
         </activity>
-        <activity android:name=".PlaylistActivity" android:theme="@style/AppTheme.NoActionBar" >
+        <activity android:name=".PlaylistActivity" android:theme="@style/AppTheme.NoActionBar" android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity">
 
         </activity>
         <meta-data

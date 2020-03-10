@@ -68,6 +68,12 @@ public class PlayerFragment extends Fragment {
             displayData();
         }
 
+        if(!musicManager.getPlaying()) {
+            btnPlay.setImageDrawable(getActivity().getDrawable(R.drawable.play_arrow_50dp));
+        } else {
+            btnPlay.setImageDrawable(getActivity().getDrawable(R.drawable.ic_pause_black_24dp));
+        }
+
         return view;
     }
     
@@ -87,7 +93,6 @@ public class PlayerFragment extends Fragment {
         btnShuffle = view.findViewById(R.id.imgbtnShuffle);
         btnDetails = view.findViewById(R.id.imgBtnDetails);
         asbSongProgress = view.findViewById(R.id.asbSongProgression);
-
     }
 
     private void initializeEventListener() {
@@ -95,7 +100,11 @@ public class PlayerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 playerListener.onPlayClicked();
-
+                if(!musicManager.getPlaying()) {
+                    btnPlay.setImageDrawable(getActivity().getDrawable(R.drawable.play_arrow_50dp));
+                } else {
+                    btnPlay.setImageDrawable(getActivity().getDrawable(R.drawable.ic_pause_black_24dp));
+                }
             }
         });
 
@@ -103,6 +112,11 @@ public class PlayerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 musicManager.toggleLoop();
+                if(musicManager.getPlayer().isLooping()) {
+                    v.setBackgroundTintList(getActivity().getResources().getColorStateList(R.color.colorAccent));
+                } else {
+                    v.setBackgroundTintList(getActivity().getResources().getColorStateList(R.color.colorPrimaryDark));
+                }
             }
         });
 
@@ -127,6 +141,11 @@ public class PlayerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 musicManager.toggleShuffle();
+                if(musicManager.getShuffled()) {
+                    v.setBackgroundTintList(getActivity().getResources().getColorStateList(R.color.colorAccent));
+                } else {
+                    v.setBackgroundTintList(getActivity().getResources().getColorStateList(R.color.colorPrimaryDark));
+                }
             }
         });
 

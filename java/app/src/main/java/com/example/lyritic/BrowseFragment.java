@@ -3,6 +3,7 @@ package com.example.lyritic;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -91,7 +92,13 @@ public class BrowseFragment extends Fragment {
         initializeReferences();
         prepareMusicManager();
         initializeEventListener();
-        
+
+        if(!musicManager.getPlaying()) {
+            btnPlay.setBackground(getActivity().getDrawable(R.drawable.play_arrow_50dp));
+        } else {
+            btnPlay.setBackground(getActivity().getDrawable(R.drawable.ic_pause_black_24dp));
+        }
+
         return root;
     }
 
@@ -163,6 +170,12 @@ public class BrowseFragment extends Fragment {
                 togglePlayButton(view);
 
                 musicManager.toggleSong();
+                if(!musicManager.getPlaying()) {
+                    btnPlay.setBackground(getActivity().getDrawable(R.drawable.play_arrow_50dp));
+                } else {
+                    btnPlay.setBackground(getActivity().getDrawable(R.drawable.ic_pause_black_24dp));
+                }
+
             }
         });
 
@@ -211,8 +224,21 @@ public class BrowseFragment extends Fragment {
 
                     ivNext.setVisibility(View.VISIBLE);
                     ivPrev.setVisibility(View.VISIBLE);
+
                     ivRepeat.setVisibility(View.VISIBLE);
+                    if(!musicManager.getPlayer().isLooping()) {
+                        ivRepeat.setImageDrawable(getActivity().getDrawable(R.drawable.repeat));
+                    } else {
+                        ivRepeat.setImageDrawable(getActivity().getDrawable(R.drawable.repeat_active));
+                    }
+
                     ivShuffle.setVisibility(View.VISIBLE);
+                    if(!musicManager.getShuffled()) {
+                        ivShuffle.setImageDrawable(getActivity().getDrawable(R.drawable.shuffle));
+                    } else {
+                        ivShuffle.setImageDrawable(getActivity().getDrawable(R.drawable.shuffle_active));
+                    }
+
                 }
 
                 return false;

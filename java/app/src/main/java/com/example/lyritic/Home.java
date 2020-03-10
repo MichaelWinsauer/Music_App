@@ -56,7 +56,6 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
         initialize();
         checkAppPermissions();
-        loadFragment();
     }
 
     private void loadFragment() {
@@ -318,6 +317,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
             DataManager.setMusicManager(musicManager);
             Stats.loadData();
             loadData();
+            loadFragment();
             new LocationTracker(this);
         } else {
             requestPermission();
@@ -344,8 +344,8 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
         if (requestCode == external_storage_permission_code) {
             if (grantResults.length > 0) {
-                for (int i : grantResults) {
-                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                for(int i = 0; i < grantResults.length; i++) {
+                    if(grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                         denied = true;
                     }
                 }
@@ -360,6 +360,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
             DataManager.setMusicManager(musicManager);
             Stats.loadData();
             loadData();
+            loadFragment();
             new LocationTracker(this);
         } else {
             Toast.makeText(this, "Keine Berechtigungen", Toast.LENGTH_SHORT).show();
