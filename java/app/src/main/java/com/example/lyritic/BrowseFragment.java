@@ -381,6 +381,7 @@ public class BrowseFragment extends Fragment {
 
         musicManager.toggleSong();
         musicManager.toggleSong();
+        musicManager.setInit(false);
     }
 
     public void setSeekBarData() {

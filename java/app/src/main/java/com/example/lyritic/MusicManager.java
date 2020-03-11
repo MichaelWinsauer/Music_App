@@ -37,7 +37,7 @@ public class MusicManager implements MediaPlayer.OnCompletionListener {
     private Boolean isShuffled = false;
     private Boolean isSelectionMode = false;
     private Boolean selectionModeChanged = false;
-    private Boolean wasPlayling = false;
+    private Boolean isInit = true;
 
     private int position;
 
@@ -46,6 +46,7 @@ public class MusicManager implements MediaPlayer.OnCompletionListener {
         playlists = new ArrayList<>();
         player = new MediaPlayer();
         playlists.add(new Playlist("Favorites"));
+        player.setOnCompletionListener(this);
     }
 
     public void play() {
@@ -199,6 +200,7 @@ public class MusicManager implements MediaPlayer.OnCompletionListener {
         currentSong = nextSong;
         setSongsByCurrentSong();
 
+
         if(player.isPlaying()) {
             player.reset();
             play();
@@ -209,6 +211,7 @@ public class MusicManager implements MediaPlayer.OnCompletionListener {
 
         currentSong = prevSong;
         setSongsByCurrentSong();
+
 
 
         if(player.isPlaying()) {
@@ -513,6 +516,13 @@ public class MusicManager implements MediaPlayer.OnCompletionListener {
     public void onCompletion(MediaPlayer mp) {
         changeSong(getNextSong());
         setSongsByCurrentSong();
+        if(!isInit) {
+            play();
+        }
+    }
+
+    public void setInit(boolean isInit) {
+        this.isInit = isInit;
     }
 
     public interface SongListener {

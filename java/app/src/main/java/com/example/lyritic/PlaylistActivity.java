@@ -51,6 +51,18 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
         } else {
             imgBtnPlaylistPlay.setBackground(getDrawable(R.drawable.ic_pause_black_24dp));
         }
+
+        if(musicManager.getShuffled()) {
+            imgBtnPlaylistShuffle.setImageDrawable(getDrawable(R.drawable.shuffle_active));
+        } else {
+            imgBtnPlaylistShuffle.setImageDrawable(getDrawable(R.drawable.shuffle));
+        }
+
+        if(musicManager.getPlayer().isLooping()) {
+            imgBtnPlaylistRepeat.setImageDrawable(getDrawable(R.drawable.repeat_active));
+        } else {
+            imgBtnPlaylistRepeat.setImageDrawable(getDrawable(R.drawable.repeat));
+        }
     }
 
     private void initializeListener() {
@@ -80,6 +92,11 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
             @Override
             public void onClick(View v) {
                 musicManager.toggleLoop();
+                if(musicManager.getPlayer().isLooping()) {
+                    imgBtnPlaylistRepeat.setImageDrawable(getDrawable(R.drawable.repeat_active));
+                } else {
+                    imgBtnPlaylistRepeat.setImageDrawable(getDrawable(R.drawable.repeat));
+                }
             }
         });
 
@@ -87,6 +104,11 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
             @Override
             public void onClick(View v) {
                 musicManager.toggleShuffle();
+                if(musicManager.getShuffled()) {
+                    imgBtnPlaylistShuffle.setImageDrawable(getDrawable(R.drawable.shuffle_active));
+                } else {
+                    imgBtnPlaylistShuffle.setImageDrawable(getDrawable(R.drawable.shuffle));
+                }
             }
         });
 
@@ -104,6 +126,11 @@ public class PlaylistActivity extends AppCompatActivity implements SongFragment.
     @Override
     public void onSongClicked(View v, Song s) {
         musicManager.changeSong(s);
+        if(!musicManager.getPlaying()) {
+            imgBtnPlaylistPlay.setBackground(getDrawable(R.drawable.ic_play_arrow_black_24dp));
+        } else {
+            imgBtnPlaylistPlay.setBackground(getDrawable(R.drawable.ic_pause_black_24dp));
+        }
     }
 
     @Override

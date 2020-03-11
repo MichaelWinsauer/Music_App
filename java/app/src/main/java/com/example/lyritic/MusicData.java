@@ -57,7 +57,6 @@ public class MusicData implements Serializable {
                 }
                 songs.add(tmp);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

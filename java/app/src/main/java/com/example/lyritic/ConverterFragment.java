@@ -64,8 +64,6 @@ public class ConverterFragment extends Fragment {
     private EditText txtArtist;
 
     private File src;
-    private String downloadLink;
-    private FFmpeg ffmpeg;
 
     public ConverterFragment() {
         // Required empty public constructor
@@ -100,7 +98,6 @@ public class ConverterFragment extends Fragment {
             public void onClick(View v) {
                 if(!txtLink.getText().toString().equals("")) {
                     downloadVideo();
-                    downloadLink = txtLink.getText().toString();
                     getContext().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
                 }
             }

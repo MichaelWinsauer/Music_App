@@ -99,8 +99,6 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
 
         if(song.getSelected()) {
             clBase.setBackgroundColor(getActivity().getColor(R.color.colorPrimaryDark));
-        } else {
-            clBase.setBackgroundColor(activity.getColor(R.color.colorSecondaryDark));
         }
 
         if(musicManager.getFav(musicManager.getSongById(song.getId()))) {
@@ -108,7 +106,6 @@ public class SongFragment extends Fragment implements MusicManager.SongListener 
         } else {
             imgBtnFav.setImageResource(R.drawable.heart_outline);
         }
-
 
         imgBtnFav.setOnClickListener(new View.OnClickListener() {
             @Override

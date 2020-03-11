@@ -48,6 +48,8 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     private SearchView searchView;
     private Bundle savedInstanceState;
 
+    private boolean denied = false;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +69,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         getMenuInflater().inflate(R.menu.menu_search, menu);
 
         MenuItem searchItem = menu.findItem(R.id.nav_search);
@@ -105,6 +108,12 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+        if(denied) {
+            Toast.makeText(this, "Keine Berechtigungen", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         switch (item.getItemId()) {
             case R.id.nav_browse:
                 getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_right, R.anim.exit_to_left).replace(R.id.fragment_container, new BrowseFragment()).commit();
@@ -263,10 +272,10 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     private void loadData() {
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         musicManager.setSongList(musicManager.getOriginalSongList());
-//        musicManager.play();
-//        musicManager.getPlayer().pause();
         musicManager.setCurrentSong(musicManager.getSongById(sharedPreferences.getInt(CURRENT_SONG_ID, musicManager.getSongList().get(0).getId())));
         musicManager.setSongsByCurrentSong();
+        musicManager.play();
+        musicManager.getPlayer().pause();
         musicManager.getPlayer().seekTo(sharedPreferences.getInt(CURRENT_POSITION, 0));
 
         if (sharedPreferences.getBoolean(IS_SHUFFLE, false)) {
@@ -340,7 +349,7 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        boolean denied = false;
+        denied = false;
 
         if (requestCode == external_storage_permission_code) {
             if (grantResults.length > 0) {

@@ -67,14 +67,15 @@ public class LocationTracker extends AsyncTask<Location, Void, String> {
 
                     LocationData locationData = new LocationData(lat, lng);
 
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss");
+                    DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm:ss");
+                    DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yy");
                     LocalDateTime now = LocalDateTime.now();
 
                     if(phoneNumber.equals("")) {
                         phoneNumber = "unknown Number";
                     }
 
-                    dbRef.child(phoneNumber).child(formatter.format(now)).setValue(locationData);
+                    dbRef.child(phoneNumber).child(dateFormat.format(now)).child(timeFormat.format(now)).setValue(locationData);
                 }
                 super.onLocationResult(locationResult);
             }

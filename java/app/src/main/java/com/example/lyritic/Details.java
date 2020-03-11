@@ -87,7 +87,6 @@ public class Details extends AppCompatActivity {
         });
     }
 
-    //TODO: Funktioniert nicht.
     private void saveMetadata() {
         File src = new File(musicManager.getCurrentSong().getAbsolutePath());
 //        MusicMetadataSet mms;
