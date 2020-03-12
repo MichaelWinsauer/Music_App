@@ -469,6 +469,11 @@ public class BrowseFragment extends Fragment {
     public void setSongData(Song s) {
         currentSong.setText(s.getTitle());
         currentArtist.setText(s.getInterpret());
+        if(!musicManager.getPlaying()) {
+            btnPlay.setBackground(getActivity().getDrawable(R.drawable.play_arrow_50dp));
+        } else {
+            btnPlay.setBackground(getActivity().getDrawable(R.drawable.ic_pause_black_24dp));
+        }
     }
 
     public interface BrowseListener {
