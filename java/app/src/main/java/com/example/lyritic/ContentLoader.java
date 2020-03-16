@@ -4,8 +4,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 
 import androidx.annotation.RequiresApi;
@@ -22,6 +24,10 @@ class ContentLoader {
     private static List<Playlist> playlists = new ArrayList<>();
 
     public static List<Song> loadSongs(Context context) {
+
+
+        String path = Environment.getExternalStorageDirectory().getPath() + "/download/";
+        MediaScannerConnection.scanFile(context, new String[]{path}, new String[]{ "audio/*" }, null);
 
         songs.clear();
 

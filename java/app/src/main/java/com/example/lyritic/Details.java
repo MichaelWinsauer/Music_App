@@ -133,6 +133,9 @@ public class Details extends AppCompatActivity {
         }
 
         musicManager.setSongList(ContentLoader.loadSongs(this));
-
+        musicManager.getCurrentSong().setTitle(txtTitle.getText().toString());
+        musicManager.getCurrentSong().setInterpret(txtArtist.getText().toString());
+        musicManager.getCurrentSong().setAlbum(txtAlbum.getText().toString());
+        musicManager.getCurrentSong().setGenre(txtGenre.getText().toString());
     }
 }

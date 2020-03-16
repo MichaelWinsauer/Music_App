@@ -201,7 +201,15 @@ public class PlayerFragment extends Fragment {
         txtArtist.setText(musicManager.getCurrentSong().getInterpret());
         txtDuration.setText(musicManager.getCurrentSong().durationToString((long) musicManager.getCurrentSong().getDuration()));
 
+        sbHandler.postDelayed(sbUpdater, 50);
+
         displayImage();
+
+        if(!musicManager.getPlaying()) {
+            btnPlay.setImageDrawable(getActivity().getDrawable(R.drawable.play_arrow_50dp));
+        } else {
+            btnPlay.setImageDrawable(getActivity().getDrawable(R.drawable.ic_pause_black_24dp));
+        }
     }
 
     public interface PlayerListener {

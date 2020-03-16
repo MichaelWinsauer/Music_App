@@ -201,10 +201,13 @@ public class MusicManager implements MediaPlayer.OnCompletionListener {
         setSongsByCurrentSong();
 
 
-        if(player.isPlaying()) {
-            player.reset();
-            play();
-        }
+        player.reset();
+        play();
+
+//        if(player.isPlaying()) {
+//            player.reset();
+//            play();
+//        }
     }
 
     public void backSong() {
@@ -213,11 +216,13 @@ public class MusicManager implements MediaPlayer.OnCompletionListener {
         setSongsByCurrentSong();
 
 
+        player.reset();
+        play();
 
-        if(player.isPlaying()) {
-            player.reset();
-            play();
-        }
+//        if(player.isPlaying()) {
+//            player.reset();
+//            play();
+//        }
     }
 
     public void setSongsByCurrentSong() {

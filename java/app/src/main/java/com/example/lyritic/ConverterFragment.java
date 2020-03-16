@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -151,6 +152,19 @@ public class ConverterFragment extends Fragment {
             @Override
             public void onSuccess(File convertedFile) {
                 Toast.makeText(getContext(), "File converted successful!", Toast.LENGTH_SHORT).show();
+                src.delete();
+
+                String path = Environment.getExternalStorageDirectory().getPath() + "/download/";
+                MediaScannerConnection.scanFile(getActivity(), new String[]{path}, new String[]{ "audio/*" }, null);
+
+                DataManager.getMusicManager().setSongList(ContentLoader.loadSongs(getActivity()));
+                DataManager.getMusicManager().setCurrentSong(DataManager.getMusicManager().getSongList().get(0));
+
+                txtTitle.getText().clear();
+                txtArtist.getText().clear();
+                txtLink.getText().clear();
+
+                converterListener.onConvertionFinished();
             }
 
             @Override
@@ -173,5 +187,6 @@ public class ConverterFragment extends Fragment {
     public interface ConverterListener {
         public void onVideoDownloaded();
         public void onConvertionStarted();
+        public void onConvertionFinished();
     }
 }

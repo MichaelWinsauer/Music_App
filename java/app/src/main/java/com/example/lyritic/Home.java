@@ -446,6 +446,12 @@ public class Home extends AppCompatActivity implements OnNavigationItemSelectedL
     }
 
     @Override
+    public void onConvertionFinished() {
+        getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_right, R.anim.exit_to_left).replace(R.id.fragment_container, new BrowseFragment()).commit();
+        navigationView.setCheckedItem(R.id.nav_browse);
+    }
+
+    @Override
     protected void onPause() {
 //        musicManager.pauseBeforeActivity();
         super.onPause();
